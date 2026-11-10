@@ -2,11 +2,11 @@
 # by Caddy with the security headers the pages are written for (Caddyfile).
 # Both images are pinned by digest (the multi-arch index of the tag); bump
 # tag and digest together.
-FROM docker.io/library/node:22-alpine@sha256:0e1754758c2df4cfa3e68d59e2e1b7374bb7fd9ea6328eaaacf15cc934af8202 AS build
+FROM docker.io/library/node:26-alpine@sha256:8996bb5821d62a8fd9bb27c1cb07462f3fdce6e47d640c6a881ead0b064ce216 AS build
 WORKDIR /src
-# pnpm in the version package.json names (packageManager).
-RUN corepack enable
 COPY package.json pnpm-lock.yaml ./
+# pnpm in the version package.json names (packageManager); Node no longer ships corepack.
+RUN npm install --global "$(node -p 'require("./package.json").packageManager')"
 RUN pnpm install --frozen-lockfile
 COPY . .
 # Types, the build, and the checks on the built pages (scripts/check-links.mjs).
