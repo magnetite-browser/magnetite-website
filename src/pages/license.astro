@@ -1,7 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import PageHeader from "../components/PageHeader.astro";
-import { EUPL_TEXTS, WEBSITE_REPO, docs } from "../site";
+import { EUPL_TEXTS, LEGAL, WEBSITE_REPO, docs } from "../site";
 ---
 
 <Base
@@ -55,6 +55,14 @@ import { EUPL_TEXTS, WEBSITE_REPO, docs } from "../site";
         The website’s source has its own repository, <a href={WEBSITE_REPO}>magnetite-website</a>, under the same licence. The headings use Bricolage Grotesque (SIL Open Font License 1.1), served from this site; the logo and the
         icons were drawn for Magnetite. The live demo runs the app’s sidebar and, with it, React (MIT) and Lucide icons
         (ISC); their notices are in the demo’s script and in the <a href={docs.notices}>third-party notices</a>.
+      </p>
+
+      <h2 id="name">Name and logo</h2>
+      <p>
+        The licence covers the code and the image files. It does not give the right to use the name “Magnetite” or its
+        logo for something else (Art. 5 EUPL). They are the marks of the project, held by {LEGAL.entity}, the company
+        that publishes Magnetite. If you distribute a changed version, give it another name and logo, so nobody takes it
+        for ours. You may always say truthfully that your work is based on Magnetite or works with it.
       </p>
 
       <h2 id="article-11">Information under Article 11 EUPL</h2>
