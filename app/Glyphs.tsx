@@ -41,7 +41,7 @@ export const GLYPH_NAMES = Object.keys(ICONS);
 const EMOJI_TO_GLYPH: Record<string, string> = { "⚡": "bolt", "🏠": "home", "💼": "briefcase", "📚": "book", "🎨": "flame", "🎧": "music", "🛠️": "wrench", "🧪": "flask", "🌍": "globe", "🛒": "cart", "💬": "chat", "📷": "camera", "🎮": "gamepad", "✈️": "plane", "🌿": "leaf", "🔥": "flame", "💡": "bolt", "🧭": "compass", "🗂️": "folder", "✦": "star", "◆": "diamond", "●": "circle", "▲": "triangle", "■": "square", "🏥": "medical", "🐙": "github", "❤️": "heart", "⭐": "star" };
 const NAME_ALIASES: Record<string, string> = { flash: "bolt", work: "briefcase", terminal: "code", gamecontroller: "gamepad", paintbrush: "flame", graduationcap: "book", film: "camera", airplane: "plane" };
 
-/** Resolve an icon value (glyph name, Arc icon name or emoji) to a glyph name. */
+/** Resolve an icon value (glyph name, an imported icon name or emoji) to a glyph name. */
 export function glyphFor(icon?: string): string | null {
   if (!icon) return null;
   if (ICONS[icon]) return icon;

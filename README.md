@@ -251,4 +251,7 @@ belong to the app packaging, not here.
 
 ## Licence
 
-EUPL-1.2 (`LICENSE`), like the browser. Contributing: `CONTRIBUTING.md`.
+EUPL-1.2 (`LICENSE`), like the browser. The licence covers the code and the
+image files; it does not give the right to use the name "Magnetite" or its
+logo for something else (the licence page, `src/pages/license.astro`, says
+what that means). Contributing: `CONTRIBUTING.md`.

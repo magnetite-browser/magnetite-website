@@ -39,7 +39,7 @@ const GROUPS: { label: string; sections: Section[] }[] = [
     sections: [
       { id: "data", label: "Data & privacy", Icon: PrivacyIcon, title: "Data & privacy", intro: "No telemetry, no Magnetite account. Magnetite talks only to the sites you open, the services you connect (sync, smart folders), GitHub for update checks, and Google's component server, from which Chromium fetches the Widevine module for protected video." },
       { id: "developer", label: "Developer", Icon: CodeIcon, title: "Developer", intro: "Tools for building and debugging websites." },
-      { id: "about", label: "About", Icon: InfoIcon, title: "About Magnetite", intro: "A free, open-source browser with the Arc workflow on a Chromium engine, made in Europe." },
+      { id: "about", label: "About", Icon: InfoIcon, title: "About Magnetite", intro: "A free, open-source browser built around a sidebar, on a Chromium engine, made in Europe." },
     ],
   },
 ];
