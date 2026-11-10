@@ -8,6 +8,10 @@ updates:
     groups:
       npm:
         patterns: ["*"]
+    ignore:
+      # astro check does not support TypeScript 7 yet and asks for TypeScript 6.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
 
   # The build and web server images in the Dockerfile, pinned by digest.
   - package-ecosystem: docker
