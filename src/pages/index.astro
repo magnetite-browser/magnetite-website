@@ -1,0 +1,1593 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon, { type IconName } from "../components/Icon.astro";
+import Logo from "../components/Logo.astro";
+import FieldCanvas from "../components/FieldCanvas.astro";
+import SyncDiagram from "../components/SyncDiagram.astro";
+import Terminal from "../components/Terminal.astro";
+import type { SceneId } from "../demo/api";
+import { ARC_SHUTDOWN, PLATFORMS, docs, repo } from "../site";
+
+const ticker = [
+  "Sidebar tabs",
+  "Spaces",
+  "Command bar",
+  "Auto-archive",
+  "Split view",
+  "Peek",
+  "Chrome extensions",
+  "Picture-in-picture",
+  "Smart folders",
+  "Private profiles",
+  "Clean links",
+  "Encrypted sync",
+];
+
+// Import from other browsers (docs/spec/import.md).
+const importSources = ["Arc", "Chrome", "Brave", "Edge", "Vivaldi", "Opera", "Chromium", "Firefox", "Zen"];
+const imported = [
+  "Arc’s spaces and Zen’s workspaces; one space per profile from the others",
+  "Pinned tabs and the tabs you have open",
+  "Tab groups and bookmarks, as folders",
+  "Arc’s favorites and Zen’s essentials",
+  "Each further profile as its own Magnetite profile",
+];
+const notImported = [
+  "Passwords: they stay in your password manager",
+  "Cookies, logins and history",
+  "Extensions: install them again from the Chrome Web Store",
+];
+
+const reasons: { icon: IconName; title: string; text: string }[] = [
+  {
+    icon: "archive",
+    title: "Tabs that tidy themselves",
+    text: "Closing a tab archives it instead of throwing it away. Tabs you have not looked at for 12 hours move to the archive on their own, and the archive stays searchable.",
+  },
+  {
+    icon: "globe",
+    title: "Chromium underneath",
+    text: "Sites work as they do in Chrome. Extensions install from the Chrome Web Store, password managers included, and Chromium’s sandbox and site isolation stay on.",
+  },
+  {
+    icon: "shield",
+    title: "Nobody watching",
+    text: "No telemetry, no account. Sync is optional, end-to-end encrypted, through Magnetite’s free server or one you can host yourself.",
+  },
+];
+
+// The tour's scenes (src/demo/film.ts plays them in the window). `focus` is
+// the part of the window, in its own 1280 × 800 pixels as "x y w h", that the
+// camera shows; `narrow` the same for small screens.
+const film: { id: SceneId; label: string; title: string; text: string; points: string[]; focus: string; narrow: string }[] = [
+  {
+    id: "sidebar",
+    label: "The sidebar",
+    title: "Everything in its place.",
+    text: "Tabs live in a vertical sidebar. What you keep stays pinned at the top; what you opened today sits below it and tidies itself away.",
+    points: [
+      "Favorites sit above everything, shared by every space.",
+      "Pinned tabs remember their home address and go back to it in one click.",
+      "Smart folders fill themselves with your pull requests, merge requests or tickets.",
+    ],
+    focus: "0 0 820 800",
+    narrow: "0 0 500 520",
+  },
+  {
+    id: "spaces",
+    label: "Spaces",
+    title: "One sidebar, many spaces.",
+    text: "Each space has its own icon, colour and profile, so work logins and private ones never meet. The window takes a tint of the space you are in.",
+    points: [
+      "Switch spaces with ⌘⌥← → or a two-finger swipe on the sidebar.",
+      "Every space keeps its own pinned tabs and its own Today.",
+      "Hide the sidebar with ⌘S; at the left edge it slides out over the page.",
+    ],
+    focus: "0 0 820 800",
+    narrow: "0 200 560 600",
+  },
+  {
+    id: "command",
+    label: "Command bar",
+    title: "One bar for everything.",
+    text: "⌘T opens the command bar over the page. Type an address, a search, the name of an open tab, something you archived last week, or a command.",
+    points: [
+      "Open tabs, the archive and commands in one list.",
+      "Picking an open tab switches to it, even in another space, instead of opening a duplicate.",
+      "Searches go to the engine you choose.",
+    ],
+    focus: "264 0 1016 660",
+    narrow: "420 80 710 420",
+  },
+  {
+    id: "split",
+    label: "Split view",
+    title: "Side by side.",
+    text: "Put up to four pages next to each other, each with its own navigation. In the sidebar they become one item.",
+    points: ["⌘⇧= opens a new split.", "Or drag one tab onto another.", "Each page keeps its own history and extensions."],
+    focus: "0 0 1280 800",
+    narrow: "0 160 1280 640",
+  },
+  {
+    id: "peek",
+    label: "Peek",
+    title: "Look without leaving.",
+    text: "Shift-click a link, or follow one away from a pinned site, and it opens as a Peek over the page you were on.",
+    points: ["⌘O keeps it as a tab.", "One click moves it into a split.", "Esc, and it is gone."],
+    focus: "0 0 1280 800",
+    narrow: "0 0 860 600",
+  },
+  {
+    id: "archive",
+    label: "Archive",
+    title: "Nothing gets lost.",
+    text: "Closing a tab archives it instead of throwing it away. Tabs you have not looked at for 12 hours move to the archive on their own.",
+    points: [
+      "The archive stays searchable, in the sidebar and from the command bar.",
+      "⌘⇧T brings back the last tab.",
+      "Kept on your device, for 90 days by default.",
+    ],
+    focus: "0 0 820 800",
+    narrow: "0 0 500 520",
+  },
+];
+
+// The smaller features. A large live window plays the scene of the card
+// that is pointed at (`showcase` in src/scripts/film.ts; src/demo/film.ts has
+// the scenes), with its camera on `focus` ("x y w h" in the window's own
+// 1280 × 800 pixels). Each card shows one piece of the real interface:
+// public/cards/<scene>.webp, what the selector `shot` matches in the window
+// at `still` of the scene (its first `first` matches, with `pad` pixels
+// around them, at most `max` wide; scripts/make-card-pictures.mjs takes the
+// pictures).
+const features: { scene: SceneId; title: string; text: string; focus: string; shot: string; first?: number; pad?: number; max?: number; still: number }[] = [
+  {
+    scene: "reopen",
+    title: "Archive instead of close",
+    text: "Closed tabs go to a local, searchable archive, kept for 90 days by default. ⌘⇧T brings back the last one.",
+    focus: "0 290 590 510",
+    shot: ".space-list .row.newtab, .space-list .row.newtab ~ .row",
+    still: 0.34,
+  },
+  {
+    scene: "pip",
+    title: "Picture-in-picture",
+    text: "Leave a tab with a playing video and it floats, with its own controls: play and pause, 15 seconds back or forward, back to the tab.",
+    focus: "330 40 950 760",
+    shot: ".pip",
+    pad: 0,
+    still: 0.5,
+  },
+  {
+    scene: "smart",
+    title: "Smart folders",
+    text: "Folders that fill themselves with your pull requests, merge requests or tickets from GitHub, GitLab, Jira or YouTrack, self-hosted servers included.",
+    focus: "0 170 590 520",
+    shot: ".space-list .row:has([data-smart]), .space-list .row[title^='https://git']",
+    still: 0.55,
+  },
+  {
+    scene: "profiles",
+    title: "Profiles per space",
+    text: "Shared, separate or private logins for each space and favorite. Private profiles live in memory and leave nothing on disk.",
+    focus: "500 60 780 690",
+    shot: ".iso-row .seg",
+    first: 2,
+    pad: 10,
+    still: 0.8,
+  },
+  {
+    scene: "extensions",
+    title: "Chrome extensions",
+    text: "Install from the Chrome Web Store, pin icons to the sidebar, reach every extension from the Extensions menu. Password managers such as Bitwarden work.",
+    focus: "0 0 590 520",
+    shot: ".hdr, .addr",
+    still: 0.5,
+  },
+  {
+    scene: "media",
+    title: "Media controls",
+    text: "Music or video in a tab you are not looking at gets a row in the sidebar: play, pause, skip, mute, or jump to the tab.",
+    focus: "0 0 590 520",
+    shot: ".media",
+    pad: 9,
+    still: 0.25,
+  },
+  {
+    scene: "links",
+    title: "Clean links",
+    text: "Copy a page’s link without tracking parameters (⌘⇧C), exactly as it is, or as Markdown.",
+    focus: "0 0 590 520",
+    shot: ".addr, .addr-status",
+    still: 0.55,
+  },
+  {
+    scene: "site",
+    title: "Site controls",
+    text: "Zoom, permissions and clearing a site’s stored data, in the site panel (⌘⇧O).",
+    focus: "0 0 590 520",
+    shot: ".site-panel .panel-group",
+    first: 1,
+    pad: 2,
+    still: 0.7,
+  },
+  {
+    scene: "capture",
+    title: "Capture",
+    text: "Take a screenshot of the page with ⌘⇧2, without a separate app: an element, a region, what is visible, or the whole page.",
+    focus: "0 290 880 510",
+    shot: ".capture-selection, .capture-size",
+    pad: 12,
+    still: 0.5,
+  },
+  {
+    scene: "import",
+    title: "Import from other browsers",
+    text: "Spaces, pinned tabs, tab groups, bookmarks and open tabs from Arc, Chrome and other Chromium-based browsers, Firefox or Zen, read on your computer.",
+    focus: "0 110 900 690",
+    shot: ".pg-app .flex-wrap, .pg-app .flex-wrap + .set-hint",
+    pad: 10,
+    max: 300,
+    still: 0.9,
+  },
+];
+
+const shortcuts = [
+  { keys: ["⌘", "T"], what: "New tab or search" },
+  { keys: ["⌘", "L"], what: "Edit the address" },
+  { keys: ["⌘", "W"], what: "Archive the tab" },
+  { keys: ["⌘", "⇧", "T"], what: "Reopen the last one" },
+  { keys: ["⌘", "D"], what: "Pin or unpin" },
+  { keys: ["⌘", "S"], what: "Hide the sidebar" },
+  { keys: ["⌘", "⌥", "←→"], what: "Switch space" },
+  { keys: ["⌘", "⇧", "="], what: "New split" },
+  { keys: ["⌘", "⇧", "C"], what: "Copy a clean link" },
+  { keys: ["⌘", "⇧", "2"], what: "Take a screenshot" },
+];
+/** The same keys on Windows and Linux: Magnetite puts Ctrl where macOS has ⌘. */
+const pcKey: Record<string, string> = { "⌘": "Ctrl", "⌥": "Alt", "⇧": "Shift" };
+
+const privacyPoints = [
+  "No telemetry and no usage statistics.",
+  "No account. Everything works without signing in.",
+  "Archive, history and favicons stay on your device, in a folder only your user can read.",
+  "Private profiles keep nothing on disk.",
+  "Smart-folder tokens go only to the service they belong to, and are never synced or logged.",
+  "Magnetite checks GitHub Releases for signed updates at start and once a day. You can turn that off in Settings → About.",
+];
+
+const facts: { title: string; text: string }[] = [
+  { title: "Rust and Chromium", text: "The app is written in Rust and embeds Chromium through the Chromium Embedded Framework." },
+  { title: "Clean room", text: "No Arc code, assets or branding. Behaviour is specified in our own words." },
+  { title: "No CLA", text: "Contributions come in under the EUPL. You keep your copyright." },
+];
+
+const faq: { q: string; a: string }[] = [
+  {
+    q: "Is this Arc?",
+    a: `No. Magnetite is an independent open-source project and is not affiliated with, endorsed by or sponsored by The Browser Company. It works in a similar way (sidebar, spaces, command bar, archive) and imports your Arc sidebar, so you can move over before Arc shuts down on ${ARC_SHUTDOWN}. It contains no Arc code, assets or branding.`,
+  },
+  {
+    q: "Which platforms?",
+    a: "Today Magnetite runs on macOS with Apple silicon, built from source. Builds for Intel Macs, Linux (x86_64 and ARM64) and Windows (x86_64) are in preparation and not released yet.",
+  },
+  {
+    q: "Is it free?",
+    a: "Yes. Magnetite is free to use and open source under the European Union Public Licence (EUPL-1.2). You do not need an account.",
+  },
+  {
+    q: "How does sync work?",
+    a: "Sync is optional. Use Magnetite’s free sync server (hosted in Germany, no sign-up) or run the small magnetite-sync server yourself (one program and a Postgres database, with Docker Compose or a Helm chart). Your first device creates a sync chain and shows a 24-word sync code; other devices join by entering it. Everything is encrypted on the device before upload, and the words never leave your devices, so the server only stores an anonymous key and padded ciphertext: no email, no password, no device names. Spaces, pinned tabs, favorites and settings sync; cookies and logins never do. If you lose every device and the 24 words, the synced data cannot be recovered, by design.",
+  },
+  {
+    q: "Will my extensions work?",
+    a: "Most should. Extensions install from the Chrome Web Store inside Magnetite and run on Chromium’s own extension system. Password managers such as Bitwarden work. Extension badges (the small counts on icons) are not shown yet.",
+  },
+  {
+    q: "Can I bring my tabs from another browser?",
+    a: "Yes: from Arc, Chromium-based browsers (Chrome, Brave, Edge, Vivaldi, Opera, Chromium), Firefox and Zen. Settings → Data → Import from another browser lists the ones on your computer. An import adds spaces next to the ones you have: pinned tabs, tab groups and bookmarks become folders, open tabs land in Today, Arc’s favorites and Zen’s essentials become favorites, and each further browser profile gets its own Magnetite profile. On first start, Magnetite also picks up your Arc sidebar by itself. The files are read on your computer and nothing is uploaded; the other browser is not changed. Passwords, cookies, history and extensions are not copied: passwords stay in your password manager, and extensions install again from the Chrome Web Store.",
+  },
+  {
+    q: "Is it ready for daily use?",
+    a: "Not for everyone yet. Things can break, including the format of the data on disk. Some sites that only serve H.264 video or AAC audio do not play yet. If you try it, keep your old browser around and tell us what breaks.",
+  },
+];
+---
+
+<Base
+  title="Magnetite"
+  description="Magnetite is an open-source desktop browser with sidebar tabs, spaces, a command bar and auto-archive, built in Rust on Chromium. No account, no telemetry."
+>
+  <!-- Hero: a live field of iron filings around the mark -->
+  <section class="hero relative isolate overflow-hidden" aria-labelledby="hero-title">
+    <div class="hero-fallback absolute inset-0 -z-20" aria-hidden="true"></div>
+    <div class="absolute inset-0 -z-10"><FieldCanvas anchor="#hero-magnet" /></div>
+    <div class="hero-shade absolute inset-0 -z-10" aria-hidden="true"></div>
+
+    <div
+      class="mx-auto grid max-w-7xl items-center gap-6 px-5 pt-10 pb-16 sm:pt-16 lg:min-h-[min(820px,calc(100svh-4rem))] lg:grid-cols-[1.15fr_0.85fr] lg:pb-24"
+    >
+      <div class="relative z-10 order-2 lg:order-1">
+        <p class="chip load d-0">
+          <span class="live"></span>
+          Open source · EUPL-1.2
+        </p>
+        <h1 id="hero-title" class="hero-title load font-display d-1">
+          Your tabs,<br />
+          <span class="text-brass">magnetized.</span>
+        </h1>
+        <p class="load mt-7 max-w-xl text-lg leading-relaxed text-secondary d-2 sm:text-xl">
+          Magnetite is an open-source browser that keeps your tabs in a sidebar, sorts them into spaces and archives what you
+          stop using. Chromium inside, Rust around it. No account, no telemetry.
+        </p>
+        <div class="load mt-10 flex flex-wrap items-center gap-3 d-3">
+          <a href="/download/" class="btn btn-primary h-13 px-7 text-base" data-magnetic="0.25">
+            <Icon name="download" size={18} />
+            Download <span class="font-medium opacity-70">· coming soon</span>
+          </a>
+          <a href={repo.url} class="btn btn-secondary h-13 px-7 text-base" data-magnetic="0.25">
+            <Icon name="code" size={18} />
+            Source code
+          </a>
+        </div>
+        <p class="load mt-8 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs tracking-wide text-muted d-4">
+          <span class="text-accent">Fe₃O₄</span>
+          <span aria-hidden="true">·</span>
+          <span>Runs on macOS with Apple silicon, built from source</span>
+          <span aria-hidden="true">·</span>
+          <span>Linux and Windows in preparation</span>
+        </p>
+      </div>
+
+      <div class="order-1 flex justify-center lg:order-2">
+        <div id="hero-magnet" class="magnet load-pop" data-tilt>
+          <span class="halo" aria-hidden="true"></span>
+          <span class="halo halo-2" aria-hidden="true"></span>
+          <Logo id="hero" motion="live" class="magnet-logo" />
+        </div>
+      </div>
+    </div>
+    <a href="#features" class="scroll-cue" aria-label="Scroll to the tour"><span></span></a>
+  </section>
+
+  <!-- Ticker -->
+  <section class="marquee border-y border-line bg-ink-2/80 py-4" aria-label="What Magnetite does">
+    <ul class="marquee-track font-display text-lg text-secondary">
+      {
+        ticker.map((t) => (
+          <li class="flex items-center gap-12 whitespace-nowrap">
+            {t}
+            <span class="spark" aria-hidden="true">
+              ✦
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+    <ul class="marquee-track font-display text-lg text-secondary" aria-hidden="true">
+      {
+        ticker.map((t) => (
+          <li class="flex items-center gap-12 whitespace-nowrap">
+            {t}
+            <span class="spark">✦</span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- The tour: a window with Magnetite's own sidebar and command bar, live
+       (src/demo/), going through six scenes. On large screens it is pinned
+       and the scroll position is the playhead; elsewhere it plays by itself
+       (src/scripts/film.ts). Without JavaScript: a picture and the captions. -->
+  <section id="features" class="film relative pt-16 sm:pt-24" aria-labelledby="tour-title" data-film>
+    <h2 id="tour-title" class="sr-only">A tour of Magnetite</h2>
+    <div class="film-track" data-film-track>
+      <div class="film-stage">
+        <div class="film-copy">
+          <ol class="film-scenes">
+            {
+              film.map((s, i) => (
+                <li id={`scene-${s.id}`} class="film-scene" data-scene={s.id} data-focus={s.focus} data-focus-narrow={s.narrow}>
+                  <p class="eyebrow">
+                    <span class="film-count">
+                      {String(i + 1).padStart(2, "0")}
+                      <span class="text-muted"> / {String(film.length).padStart(2, "0")}</span>
+                    </span>
+                    {s.label}
+                  </p>
+                  <h3 class="film-title font-display">{s.title}</h3>
+                  <p class="film-text">{s.text}</p>
+                  <ul class="film-points">
+                    {s.points.map((p) => (
+                      <li>
+                        <Icon name="check" size={18} class="mt-0.5 text-accent" />
+                        <span>{p}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))
+            }
+          </ol>
+          <nav class="film-rail" aria-label="Scenes of the tour">
+            {
+              film.map((s) => (
+                <a href={`#scene-${s.id}`} data-rail>
+                  <span class="film-bar" aria-hidden="true" />
+                  {s.label}
+                </a>
+              ))
+            }
+          </nav>
+        </div>
+        <div class="film-view">
+          <div class="film-glow" aria-hidden="true"></div>
+          <div class="film-cam">
+            <div class="film-window" data-demo="/demo/?film">
+              <img
+                class="film-poster"
+                src="/tour.webp"
+                alt="The Magnetite window: a sidebar with favorites, the space “Work” with pinned tabs, a folder of review requests and today’s tabs, beside an open page."
+                width="1280"
+                height="800"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="film-note mx-auto max-w-7xl px-5">
+      Not a recording: the sidebar and the command bar in this window are Magnetite’s own code, running on sample tabs.
+      <a href="/demo/" class="link whitespace-nowrap">Try the live demo</a>
+    </p>
+  </section>
+
+  <!-- Import -->
+  <section class="mx-auto max-w-7xl px-5 pt-16 sm:pt-24" aria-labelledby="import-title" data-reveal>
+    <div class="glass grid gap-8 rounded-3xl p-6 sm:p-8 lg:grid-cols-[1fr_1.15fr] lg:gap-14 lg:p-10">
+      <div>
+        <span class="orb"><Icon name="import" size={20} /></span>
+        <h2 id="import-title" class="mt-5 font-display text-2xl font-semibold tracking-[-0.01em] sm:text-3xl">
+          Moving from another browser?
+        </h2>
+        <p class="mt-3 leading-relaxed text-secondary">
+          Settings → Data → Import from another browser lists the browsers on your computer, and one click adds their
+          spaces and tabs next to yours.
+        </p>
+        <ul class="mt-5 flex flex-wrap gap-2" aria-label="Browsers Magnetite imports from">
+          {importSources.map((b) => <li class="source">{b}</li>)}
+        </ul>
+      </div>
+      <div class="grid content-start gap-7 sm:grid-cols-2 lg:pt-1">
+        <div>
+          <h3 class="eyebrow">Comes along</h3>
+          <ul class="mt-4 space-y-2.5 text-[0.9375rem] leading-snug text-secondary">
+            {
+              imported.map((t) => (
+                <li class="flex gap-2.5">
+                  <Icon name="check" size={17} class="mt-px text-accent" />
+                  <span>{t}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <div>
+          <h3 class="eyebrow">Stays behind</h3>
+          <ul class="mt-4 space-y-2.5 text-[0.9375rem] leading-snug text-secondary">
+            {
+              notImported.map((t) => (
+                <li class="flex gap-2.5">
+                  <span class="skip" aria-hidden="true"></span>
+                  <span>{t}</span>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="mt-5 text-sm leading-relaxed text-muted">
+            Everything is read on your computer and nothing is uploaded. Magnetite is an independent project, not
+            affiliated with The Browser Company.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why -->
+  <section class="mx-auto max-w-7xl px-5 pt-16 sm:pt-24" aria-labelledby="why-title">
+    <h2 id="why-title" class="sr-only">Why Magnetite</h2>
+    <ul class="grid gap-5 md:grid-cols-3">
+      {
+        reasons.map((r, i) => (
+          <li class:list={["card spot p-7", `d-${i}`]} data-reveal>
+            <span class="orb">
+              <Icon name={r.icon} size={20} />
+            </span>
+            <h3 class="mt-6 font-display text-xl font-semibold">{r.title}</h3>
+            <p class="mt-3 leading-relaxed text-secondary">{r.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Keyboard -->
+  <section class="mx-auto max-w-7xl px-5 pt-16 sm:pt-24" aria-labelledby="keys-title">
+    <div class="keys card overflow-hidden p-7 sm:p-10" data-reveal>
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <h2 id="keys-title" class="font-display text-2xl font-semibold tracking-[-0.01em]">Hands stay on the keys.</h2>
+        <fieldset class="os-switch">
+          <legend class="sr-only">Show the shortcuts for</legend>
+          <label><input type="radio" name="keys-os" value="mac" checked />macOS</label>
+          <label><input type="radio" name="keys-os" value="pc" />Windows &amp; Linux</label>
+        </fieldset>
+      </div>
+      <ul class="mt-8 grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-x-8 lg:grid-cols-5">
+        {
+          shortcuts.map((s) => (
+            <li class="keyset">
+              <span class="keys-mac flex gap-1.5">
+                {s.keys.map((k) => (
+                  <kbd class="cap">{k}</kbd>
+                ))}
+              </span>
+              <span class="keys-pc flex gap-1.5">
+                {s.keys.map((k) => (
+                  <kbd class="cap">{pcKey[k] ?? k}</kbd>
+                ))}
+              </span>
+              <span class="text-sm text-secondary">{s.what}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Everything else -->
+  <section class="mx-auto max-w-7xl px-5 pt-16 sm:pt-24" aria-labelledby="more-title">
+    <div class="max-w-2xl">
+      <p class="eyebrow" data-reveal>And the rest</p>
+      <h2 id="more-title" class="section-title mt-5 font-display" data-reveal>Small things, done properly.</h2>
+    </div>
+    <div class="show mt-10" data-show>
+      <ul class="show-cards">
+        {
+          features.map((f, i) => (
+            <li
+              class:list={["show-card card spot", `d-${i % 3}`]}
+              data-reveal
+              data-card={f.scene}
+              data-focus={f.focus}
+              data-still={f.still}
+              data-shot={f.shot}
+              data-shot-first={f.first}
+              data-shot-pad={f.pad}
+              data-shot-max={f.max}
+            >
+              {/* Decorative: the card says the same in words. */}
+              <div class="piece">
+                <img src={`/cards/${f.scene}.webp`} alt="" loading="lazy" decoding="async" />
+              </div>
+              <div class="min-w-0">
+                <h3 class="font-display text-lg font-semibold">{f.title}</h3>
+                <p class="mt-1.5 text-[0.9375rem] leading-relaxed text-secondary">{f.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="show-view" aria-hidden="true">
+        <div class="show-cam">
+          <div class="show-window">
+            <img class="film-poster" src="/tour.webp" alt="" width="1280" height="800" loading="lazy" decoding="async" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Privacy -->
+  <section id="privacy" class="privacy relative mt-16 overflow-hidden sm:mt-24" aria-labelledby="privacy-title">
+    <div class="mx-auto grid max-w-7xl gap-12 px-5 py-16 sm:py-20 lg:grid-cols-2 lg:gap-20">
+      <div>
+        <p class="eyebrow" data-reveal>Privacy</p>
+        <h2 id="privacy-title" class="section-title mt-5 font-display" data-reveal>Your browsing stays yours.</h2>
+        <p class="mt-5 text-lg leading-relaxed text-secondary" data-reveal>
+          Magnetite is built EU-first, with the GDPR in mind. There is no Magnetite server your browser reports to.
+        </p>
+        <dl class="mt-10 grid grid-cols-3 gap-3 sm:gap-4" data-reveal>
+          <div class="stat"><dt>telemetry</dt><dd class="font-display text-brass">0</dd></div>
+          <div class="stat"><dt>accounts needed</dt><dd class="font-display text-brass">0</dd></div>
+          <div class="stat"><dt>words to join a device</dt><dd class="font-display text-brass">24</dd></div>
+        </dl>
+        <ul class="mt-10 space-y-3.5 text-secondary">
+          {
+            privacyPoints.map((p, i) => (
+              <li class:list={["flex gap-3", `d-${i}`]} data-reveal>
+                <span class="tick">
+                  <Icon name="check" size={13} />
+                </span>
+                <span>{p}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="mt-9" data-reveal><a href="/privacy/" class="link">Read the privacy policy</a></p>
+      </div>
+      <div class="lg:pt-24" data-reveal>
+        <div class="glass rounded-3xl p-6 sm:p-8">
+          <h3 class="font-display text-2xl font-semibold">Sync, if you want it</h3>
+          <p class="mt-3 leading-relaxed text-secondary">
+            Use Magnetite’s free sync server in Germany, or run
+            <code class="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[0.875em] text-fg">magnetite-sync</code>, one small
+            program and a Postgres database, on your own server. Devices join with a 24-word sync code. No email, no
+            password.
+          </p>
+          <div class="mt-8"><SyncDiagram /></div>
+          <p class="mt-6 text-sm"><a href={docs.syncServer} class="link">How to run your own sync server</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Open source -->
+  <section class="mx-auto max-w-7xl px-5 pt-16 sm:pt-24" aria-labelledby="oss-title">
+    <div class="grid items-center gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
+      <div>
+        <p class="eyebrow" data-reveal>Open source</p>
+        <h2 id="oss-title" class="section-title mt-5 font-display" data-reveal>Every line in the open.</h2>
+        <p class="mt-5 text-lg leading-relaxed text-secondary" data-reveal>
+          All of Magnetite’s code is public: read it, build it yourself, change it. There is no account to lock features
+          behind, and if we ever stop, anyone can carry it on. The EUPL-1.2 copyleft keeps it that way: whoever ships a
+          changed version, or runs a changed sync server for others, publishes the changes too.
+        </p>
+        <div class="mt-9 flex flex-wrap gap-3" data-reveal>
+          <a href={repo.url} class="btn btn-secondary" data-magnetic="0.2"><Icon name="code" size={18} />Source code</a>
+          <a href={docs.contributing} class="btn btn-secondary" data-magnetic="0.2">Contributing</a>
+          <a href="/security/" class="btn btn-secondary" data-magnetic="0.2"><Icon name="shield" size={18} />Security</a>
+        </div>
+      </div>
+      <div class="min-w-0" data-reveal><Terminal /></div>
+    </div>
+    <ul class="mt-12 grid gap-5 md:grid-cols-3">
+      {
+        facts.map((f, i) => (
+          <li class:list={["card spot p-6", `d-${i}`]} data-reveal>
+            <h3 class="font-display text-lg font-semibold">{f.title}</h3>
+            <p class="mt-2 text-[0.9375rem] leading-relaxed text-secondary">{f.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Download -->
+  <section id="download" class="mx-auto max-w-7xl px-5 pt-16 sm:pt-24" aria-labelledby="download-title">
+    <div class="glass relative overflow-hidden rounded-[28px] p-8 sm:p-12" data-reveal>
+      <div class="download-glow" aria-hidden="true"></div>
+      <div class="relative grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+        <div>
+          <p class="eyebrow">Download</p>
+          <h2 id="download-title" class="section-title mt-5 font-display">Signed builds are coming soon.</h2>
+          <p class="mt-5 max-w-lg text-lg leading-relaxed text-secondary">
+            There is no release yet. Downloads will appear here and on GitHub Releases, macOS first. Until then you can build
+            Magnetite from source on a Mac with Apple silicon.
+          </p>
+          <div class="mt-9 flex flex-wrap gap-3">
+            <a href="/download/" class="btn btn-primary" data-magnetic="0.25">Download options<Icon name="arrowRight" size={17} /></a>
+            <a href={docs.building} class="btn btn-secondary" data-magnetic="0.25">Build from source</a>
+          </div>
+        </div>
+        <ul class="space-y-2.5 text-sm">
+          {
+            PLATFORMS.map((p, i) => (
+              <li class:list={["platform", `d-${i}`]} data-reveal>
+                <span class="font-medium">
+                  {p.os} <span class="text-muted">· {p.arch}</span>
+                </span>
+                <span class:list={["status", { ready: p.ready }]}>{p.status}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="mx-auto grid max-w-7xl gap-10 px-5 pt-16 sm:pt-24 lg:grid-cols-[1fr_1.7fr] lg:gap-16" aria-labelledby="faq-title">
+    <div class="lg:sticky lg:top-28 lg:self-start">
+      <p class="eyebrow" data-reveal>FAQ</p>
+      <h2 id="faq-title" class="section-title mt-5 font-display" data-reveal>Questions.</h2>
+      <p class="mt-5 text-lg leading-relaxed text-secondary" data-reveal>
+        Not answered here? <a href={repo.issues} class="link">Ask on GitHub</a>.
+      </p>
+    </div>
+    <div class="space-y-3">
+      {
+        faq.map((item, i) => (
+          <details class:list={["qa", `d-${i % 4}`]} data-reveal>
+            <summary class="flex items-center justify-between gap-6 px-6 py-5 text-lg font-medium">
+              {item.q}
+              <span class="plus">
+                <Icon name="plus" size={18} />
+              </span>
+            </summary>
+            <p class="px-6 pb-6 leading-relaxed text-secondary">{item.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Closing -->
+  <section class="px-5 pt-16 sm:pt-24" aria-label="Get involved">
+    <div class="closing relative isolate mx-auto max-w-7xl overflow-hidden rounded-[32px] border border-line px-5">
+      <div class="absolute inset-0 -z-10"><FieldCanvas /></div>
+      <div class="closing-shade absolute inset-0 -z-10" aria-hidden="true"></div>
+      <div class="mx-auto max-w-2xl py-16 text-center sm:py-20">
+        <p class="mx-auto max-w-lg text-lg leading-relaxed text-secondary" data-reveal>
+          Follow the project, build it from source, tell us what breaks.
+        </p>
+        <div class="mt-10 flex flex-wrap justify-center gap-3" data-reveal>
+          <a href={repo.url} class="btn btn-primary" data-magnetic="0.25"><Icon name="code" size={18} />Source code</a>
+          <a href="/download/" class="btn btn-secondary" data-magnetic="0.25">Download options</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Hero */
+  .hero-fallback {
+    background:
+      radial-gradient(45% 55% at 72% 42%, rgb(226 98 43 / 0.14), transparent 70%),
+      radial-gradient(40% 50% at 20% 80%, rgb(147 164 184 / 0.08), transparent 70%),
+      var(--color-ink);
+  }
+  .hero-shade {
+    background:
+      linear-gradient(90deg, rgb(12 12 14 / 0.85) 0%, rgb(12 12 14 / 0.55) 40%, rgb(12 12 14 / 0) 70%),
+      linear-gradient(180deg, transparent 70%, var(--color-ink) 100%);
+    pointer-events: none;
+  }
+  @media (max-width: 1023px) {
+    .hero-shade {
+      background: linear-gradient(
+        180deg,
+        rgb(12 12 14 / 0.2) 0%,
+        rgb(12 12 14 / 0.75) 45%,
+        rgb(12 12 14 / 0.9) 70%,
+        var(--color-ink) 100%
+      );
+    }
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.9rem 0.4rem 0.7rem;
+    border: 1px solid rgb(215 166 101 / 0.3);
+    border-radius: 999px;
+    background: rgb(215 166 101 / 0.07);
+    color: var(--color-champagne);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+  .live {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    animation: pulse-ring 1.8s ease-out infinite;
+  }
+  .hero-title {
+    margin-top: 1.75rem;
+    font-size: clamp(3.25rem, 8.6vw, 7.25rem);
+    font-weight: 650;
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+  }
+  .load {
+    animation: rise 1.2s var(--ease-out-expo) both;
+    animation-delay: calc(0.15s + var(--i, 0) * 0.12s);
+  }
+  .load-pop {
+    animation: magnet-in 1.6s var(--ease-out-expo) both;
+  }
+  .magnet {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(78vw, 440px);
+    aspect-ratio: 1;
+  }
+  @media (max-width: 1023px) {
+    .magnet {
+      width: min(56vw, 260px);
+    }
+  }
+  .magnet {
+    transition: transform 600ms var(--ease-out-expo);
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  }
+  .magnet :global(.magnet-logo) {
+    position: relative;
+    width: 74%;
+    height: 74%;
+    border-radius: 22%;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.07),
+      inset 0 1px 0 rgb(255 255 255 / 0.1);
+    filter: drop-shadow(0 40px 60px rgb(0 0 0 / 0.8)) drop-shadow(0 0 50px rgb(226 98 43 / 0.25));
+    animation: float 8s ease-in-out infinite;
+  }
+  .halo {
+    position: absolute;
+    inset: 4%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(226 98 43 / 0.2), rgb(215 166 101 / 0.08) 45%, transparent 66%);
+    animation: breathe 6s ease-in-out infinite;
+  }
+  .halo-2 {
+    inset: -10%;
+    border: 1px solid rgb(226 98 43 / 0.16);
+    background: none;
+    animation: ripple 6s ease-out infinite;
+  }
+  .scroll-cue {
+    position: absolute;
+    left: 50%;
+    bottom: 22px;
+    display: none;
+    width: 26px;
+    height: 40px;
+    translate: -50% 0;
+    border: 1.5px solid rgb(255 255 255 / 0.2);
+    border-radius: 999px;
+  }
+  .scroll-cue span {
+    position: absolute;
+    left: 50%;
+    top: 8px;
+    width: 4px;
+    height: 8px;
+    margin-left: -2px;
+    border-radius: 2px;
+    background: var(--color-accent);
+    animation: cue 1.8s ease-in-out infinite;
+  }
+  @media (min-width: 1024px) and (min-height: 760px) {
+    .scroll-cue {
+      display: block;
+    }
+  }
+
+  /* Ticker */
+  .spark {
+    color: var(--color-accent);
+    font-size: 0.8em;
+  }
+
+  .section-title {
+    font-size: clamp(2.4rem, 5.2vw, 4rem);
+    font-weight: 620;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+
+  /* Tour. src/scripts/film.ts sets data-mode, data-scene, data-live and
+     data-current, and the properties --scenes (how many), --t (progress of
+     the scene), --entered and --cut. Without it: the picture of the window,
+     then the captions as a list. */
+  .film-stage {
+    display: flex;
+    flex-direction: column;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+  .film-view {
+    position: relative;
+    order: -1;
+  }
+  .film-glow {
+    position: absolute;
+    inset: 6% 0;
+    background:
+      radial-gradient(45% 50% at 40% 50%, rgb(215 166 101 / 0.22), transparent 70%),
+      radial-gradient(40% 40% at 15% 65%, rgb(147 164 184 / 0.12), transparent 70%);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+  /* Spaces tint the window; the light behind it follows (Home is green). */
+  .film-glow::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(45% 50% at 40% 50%, rgb(143 196 150 / 0.2), transparent 70%);
+    opacity: 0;
+    transition: opacity 700ms;
+  }
+  .film:is([data-scene="spaces"], [data-scene="command"]) .film-glow::after {
+    opacity: 1;
+  }
+  .film-window {
+    position: relative;
+    aspect-ratio: 1280 / 800;
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--color-bg);
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.1),
+      0 50px 120px -30px rgb(0 0 0 / 0.9),
+      0 0 80px -20px rgb(215 166 101 / 0.25);
+  }
+  .film-poster {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  /* The live window (a frame film.ts adds) covers the picture once it runs. */
+  .film-window :global(.film-frame) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    color-scheme: dark;
+    opacity: 0;
+    transition: opacity 400ms;
+  }
+  .film[data-live] .film-window :global(.film-frame) {
+    opacity: 1;
+  }
+  .film-copy {
+    display: flex;
+    flex-direction: column;
+  }
+  .film-scenes {
+    display: grid;
+    gap: 3rem 4rem;
+    margin-top: 3rem;
+  }
+  @media (min-width: 768px) {
+    .film-scenes {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .film-count {
+    color: var(--color-champagne);
+  }
+  .film-title {
+    margin-top: 1rem;
+    font-size: clamp(2rem, 3.3vw, 2.875rem);
+    font-weight: 620;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+  }
+  .film-text {
+    margin-top: 1rem;
+    color: var(--color-secondary);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+  .film-points {
+    display: grid;
+    gap: 0.65rem;
+    margin-top: 1.25rem;
+    color: var(--color-secondary);
+  }
+  .film-points li {
+    display: flex;
+    gap: 0.75rem;
+  }
+  .film-rail {
+    display: none;
+  }
+  .film-note {
+    margin-top: 2rem;
+    color: var(--color-muted);
+    font-size: 0.9375rem;
+  }
+
+  /* With the script: one caption at a time, in the same place; the window
+     is 1280 × 800 and the camera (a transform from film.ts) moves it so the
+     scene's part fills the view. */
+  .film[data-mode] .film-cam {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1280px;
+    height: 800px;
+    transform-origin: 0 0;
+  }
+  .film[data-mode] .film-window {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+  .film[data-mode] .film-scenes {
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-top: 0;
+  }
+  .film[data-mode] .film-scene {
+    grid-area: 1 / 1;
+    opacity: 0;
+    translate: 0 20px;
+    pointer-events: none;
+    transition:
+      opacity 300ms,
+      translate 700ms var(--ease-out-expo);
+  }
+  .film[data-mode] .film-scene[data-current] {
+    opacity: 1;
+    translate: 0 0;
+    pointer-events: auto;
+    transition-delay: 140ms;
+  }
+  /* The rail: a link per scene with a bar that fills as the scene plays. */
+  .film[data-mode] .film-rail {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .film-rail a {
+    position: relative;
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    transition: color 250ms;
+  }
+  .film-rail a:hover,
+  .film-rail a[data-current] {
+    color: var(--color-fg);
+  }
+  .film-bar {
+    position: absolute;
+    overflow: hidden;
+    border-radius: 2px;
+    background: rgb(255 255 255 / 0.12);
+  }
+  .film-bar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--color-accent);
+    transform-origin: 0 50%;
+    scale: 0 1;
+  }
+  .film-rail a[data-done] .film-bar::after {
+    scale: 1 1;
+  }
+  .film-rail a[data-current] .film-bar::after {
+    scale: var(--t, 0) 1;
+  }
+
+  /* In the page (small screens, or reduced motion): the window in a box
+     that the camera looks through, the scenes as chips under it. */
+  .film[data-mode="auto"] .film-view {
+    aspect-ratio: 1 / 0.95;
+    max-height: 38rem;
+    overflow: hidden;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 18px;
+    background: var(--color-ink-2);
+  }
+  @media (min-width: 640px) {
+    .film[data-mode="auto"] .film-view {
+      aspect-ratio: 16 / 10;
+    }
+  }
+  .film[data-mode="auto"] .film-glow {
+    display: none;
+  }
+  .film[data-mode="auto"] .film-window {
+    border-radius: 14px;
+    box-shadow: none;
+  }
+  .film[data-mode="auto"] .film-rail {
+    order: -1;
+    margin: 1.25rem -1.25rem 1.75rem;
+    padding: 0 1.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .film[data-mode="auto"] .film-rail a {
+    flex: none;
+    padding: 0.45rem 0.9rem 0.55rem;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .film[data-mode="auto"] .film-rail a[data-current] {
+    border-color: rgb(215 166 101 / 0.55);
+    background: rgb(215 166 101 / 0.08);
+  }
+  .film[data-mode="auto"] .film-bar {
+    inset: auto 0 0;
+    height: 2px;
+    border-radius: 0;
+    background: none;
+  }
+
+  /* Pinned (large screens with motion): the stage sticks below the header
+     for one screen plus 90 % of one per scene. The captions are a column on
+     the left; the window starts beside it and runs off the right edge of the
+     screen at full size, and comes in tilted while the stage rises. */
+  .film[data-mode="scroll"] .film-track {
+    height: calc(100svh - 4rem + var(--scenes) * 90svh);
+  }
+  .film[data-mode="scroll"] .film-stage {
+    position: sticky;
+    top: 4rem;
+    display: grid;
+    grid-template-columns: clamp(17rem, 28vw, 23rem) minmax(0, 1fr);
+    gap: 2rem;
+    max-width: none;
+    height: calc(100svh - 4rem);
+    padding: 0 0 0 max(1.25rem, (100vw - 80rem) / 2 + 1.25rem);
+  }
+  .film[data-mode="scroll"] .film-copy {
+    position: relative;
+    justify-content: center;
+    padding-bottom: 5rem;
+    opacity: calc(var(--entered, 1) * 2 - 1);
+  }
+  /* Where the camera moves the window's left part out of the view, it is
+     cut at the view's edge and fades into the page there (--cut, 0 to 1). */
+  .film[data-mode="scroll"] .film-view {
+    order: 0;
+    height: 100%;
+    clip-path: inset(-50vh -50vw -50vh 0);
+  }
+  .film[data-mode="scroll"] .film-view::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5rem;
+    background: linear-gradient(90deg, var(--color-ink), transparent);
+    opacity: var(--cut, 0);
+    pointer-events: none;
+  }
+  .film[data-mode="scroll"] .film-window {
+    transform-origin: 30% 100%;
+    transform: perspective(1800px) rotateX(calc((1 - var(--entered, 1)) * 18deg))
+      translateY(calc((1 - var(--entered, 1)) * 60px)) scale(calc(0.88 + 0.12 * var(--entered, 1)));
+    opacity: calc(var(--entered, 1) * 2.5);
+  }
+  .film[data-mode="scroll"] .film-rail {
+    position: absolute;
+    inset: auto 0 2.5rem;
+    display: grid;
+    grid-template-columns: repeat(var(--scenes), minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+  .film[data-mode="scroll"] .film-rail a {
+    height: 2.75rem;
+    padding-top: 1.1rem;
+    color: transparent;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .film[data-mode="scroll"] .film-rail a[data-current] {
+    color: var(--color-champagne);
+  }
+  .film[data-mode="scroll"] .film-bar {
+    inset: 0.5rem 0 auto;
+    height: 3px;
+  }
+  @media (max-height: 760px) {
+    .film[data-mode="scroll"] .film-points {
+      display: none;
+    }
+  }
+
+  /* Import panel */
+  .source {
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.03);
+    color: var(--color-fg);
+    font-size: 0.875rem;
+  }
+  .skip {
+    flex: none;
+    width: 17px;
+    height: 17px;
+    margin-top: 1px;
+    background: linear-gradient(var(--color-muted), var(--color-muted)) center / 10px 1.5px no-repeat;
+  }
+
+  .orb {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 14px;
+    background: radial-gradient(circle at 30% 25%, rgb(246 223 176 / 0.25), rgb(215 166 101 / 0.08) 60%);
+    box-shadow:
+      inset 0 0 0 1px rgb(215 166 101 / 0.35),
+      0 0 24px -6px rgb(215 166 101 / 0.5);
+    color: var(--color-champagne);
+  }
+
+  /* Keyboard */
+  .keyset {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  /* macOS or Windows & Linux keys: two radio buttons, no script needed
+     (motion.ts only preselects the right one). */
+  .os-switch {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.06);
+    font-size: 0.8125rem;
+  }
+  .os-switch label {
+    padding: 0.3rem 0.85rem;
+    border-radius: 999px;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition:
+      background-color 150ms,
+      color 150ms;
+  }
+  .os-switch input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .os-switch label:has(input:checked) {
+    background: rgb(255 255 255 / 0.12);
+    color: var(--color-fg);
+  }
+  .os-switch label:has(input:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .keys-pc {
+    display: none;
+  }
+  .keys:has(input[value="pc"]:checked) .keys-mac {
+    display: none;
+  }
+  .keys:has(input[value="pc"]:checked) .keys-pc {
+    display: flex;
+  }
+  .cap {
+    display: grid;
+    place-items: center;
+    min-width: 2.4rem;
+    height: 2.4rem;
+    padding: 0 0.6rem;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 10px;
+    background: linear-gradient(180deg, #2c2c31, #1d1d21);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.08),
+      0 3px 0 #0a0a0c,
+      0 6px 14px -4px rgb(0 0 0 / 0.8);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    transition:
+      translate 120ms,
+      box-shadow 120ms,
+      color 120ms;
+  }
+  .keyset:hover .cap {
+    translate: 0 2px;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.08),
+      0 1px 0 #0a0a0c,
+      0 0 18px -4px rgb(215 166 101 / 0.6);
+    color: var(--color-champagne);
+  }
+
+  /* The smaller features: a list of cards, each with one piece of the real
+     interface, and a large live window (src/scripts/film.ts, `showcase`)
+     that plays the scene of the card marked `data-current`. Without the
+     script, and on small screens before it runs: the cards alone. */
+  .show-cards {
+    display: grid;
+    gap: 1rem;
+  }
+  .show-card {
+    display: grid;
+    align-items: center;
+    gap: 1rem 1.25rem;
+    padding: 1rem;
+    transition: border-color 300ms;
+  }
+  .show[data-live] .show-card {
+    cursor: pointer;
+  }
+  .show-card[data-current] {
+    border-color: rgb(215 166 101 / 0.5);
+  }
+  .piece {
+    display: grid;
+    place-items: center;
+    height: 8.5rem;
+    padding: 0.75rem;
+    border-radius: 12px;
+    background:
+      radial-gradient(80% 100% at 50% 0%, rgb(215 166 101 / 0.07), transparent 70%),
+      #0f0f11;
+  }
+  .piece img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 7rem;
+    border-radius: 10px;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.1),
+      0 14px 34px -10px rgb(0 0 0 / 0.9);
+  }
+  @media (min-width: 640px) {
+    .show-card {
+      grid-template-columns: min(18rem, 46%) minmax(0, 1fr);
+    }
+  }
+  .show-view {
+    display: none;
+  }
+  /* With the script: the window in a box the camera looks through. It
+     stays on screen while the cards scroll: above them on small screens,
+     beside them on large ones. */
+  .show[data-live] .show-view {
+    position: sticky;
+    z-index: 5;
+    top: 7.5rem;
+    display: block;
+    order: -1;
+    height: min(42svh, 22rem);
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 18px;
+    background: var(--color-ink-2);
+    box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.9);
+  }
+  .show[data-live] {
+    display: flex;
+    flex-direction: column;
+  }
+  .show-cam {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1280px;
+    height: 800px;
+    transform-origin: 0 0;
+    transition: transform 900ms var(--ease-out-expo);
+  }
+  .show-window {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--color-bg);
+  }
+  .show-window :global(.film-frame) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    color-scheme: dark;
+  }
+  @media (min-width: 1024px) {
+    .show[data-live] {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      align-items: start;
+      gap: 2rem;
+    }
+    .show[data-live] .show-view {
+      top: 6rem;
+      order: 0;
+      height: min(34rem, 100svh - 8rem);
+      margin-bottom: 0;
+    }
+  }
+
+  /* Privacy */
+  .privacy {
+    border-block: 1px solid var(--color-line);
+    background:
+      radial-gradient(50% 60% at 85% 30%, rgb(215 166 101 / 0.09), transparent 70%),
+      radial-gradient(40% 50% at 10% 90%, rgb(147 164 184 / 0.07), transparent 70%),
+      var(--color-ink-2);
+  }
+  .stat {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    min-width: 0;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background: rgb(255 255 255 / 0.02);
+  }
+  .stat dd {
+    font-size: clamp(2.25rem, 4vw, 3.25rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .stat dt {
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
+  .tick {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    margin-top: 0.1rem;
+    border-radius: 50%;
+    background: rgb(215 166 101 / 0.14);
+    box-shadow: inset 0 0 0 1px rgb(215 166 101 / 0.4);
+    color: var(--color-champagne);
+  }
+
+  /* Download */
+  .download-glow {
+    position: absolute;
+    inset: auto -10% -60% 30%;
+    height: 120%;
+    background: radial-gradient(50% 50% at 50% 50%, rgb(215 166 101 / 0.18), transparent 70%);
+    filter: blur(20px);
+    pointer-events: none;
+  }
+  .platform {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background: rgb(12 12 14 / 0.45);
+  }
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-muted);
+    text-align: right;
+  }
+  .status::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    flex: none;
+    border-radius: 50%;
+    background: #55555c;
+  }
+  .status.ready {
+    color: var(--color-champagne);
+  }
+  .status.ready::before {
+    background: var(--color-accent);
+    animation: pulse-ring 1.8s ease-out infinite;
+  }
+
+  /* FAQ */
+  .qa {
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 18px;
+    background: linear-gradient(180deg, #17171a, #131316);
+    transition: border-color 300ms;
+    interpolate-size: allow-keywords;
+  }
+  .qa:hover,
+  .qa[open] {
+    border-color: rgb(215 166 101 / 0.35);
+  }
+  .qa::details-content {
+    height: 0;
+    opacity: 0;
+    transition:
+      height 500ms var(--ease-out-expo),
+      opacity 400ms,
+      content-visibility 500ms allow-discrete;
+  }
+  .qa[open]::details-content {
+    height: auto;
+    opacity: 1;
+  }
+  .plus {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: rgb(215 166 101 / 0.1);
+    color: var(--color-accent);
+    transition: rotate 400ms var(--ease-out-expo);
+  }
+  .qa[open] .plus {
+    rotate: 45deg;
+  }
+
+  /* Closing */
+  .closing-shade {
+    background: radial-gradient(60% 70% at 50% 50%, rgb(12 12 14 / 0.88), rgb(12 12 14 / 0.4) 75%, rgb(12 12 14 / 0.2));
+    pointer-events: none;
+  }
+
+  @keyframes magnet-in {
+    from {
+      opacity: 0;
+      scale: 0.7;
+      rotate: -25deg;
+      filter: blur(12px);
+    }
+    to {
+      opacity: 1;
+      scale: 1;
+      rotate: 0deg;
+      filter: blur(0);
+    }
+  }
+  @keyframes breathe {
+    0%,
+    100% {
+      opacity: 0.7;
+      scale: 0.95;
+    }
+    50% {
+      opacity: 1;
+      scale: 1.05;
+    }
+  }
+  @keyframes ripple {
+    0% {
+      opacity: 0.8;
+      scale: 0.75;
+    }
+    100% {
+      opacity: 0;
+      scale: 1.15;
+    }
+  }
+  @keyframes cue {
+    0% {
+      opacity: 0;
+      translate: 0 0;
+    }
+    30% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      translate: 0 12px;
+    }
+  }
+</style>

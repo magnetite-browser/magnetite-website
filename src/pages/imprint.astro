@@ -1,0 +1,48 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHeader from "../components/PageHeader.astro";
+import { LEGAL } from "../site";
+---
+
+<Base title="Imprint" description="Legal information about who publishes this website and Magnetite.">
+  <PageHeader
+    eyebrow="Legal"
+    title="Imprint"
+    lead="Who provides this website and publishes Magnetite. This is also the information about the licensor that the EUPL asks for (Art. 11)."
+  />
+  <article class="mx-auto max-w-3xl px-5 pt-4">
+
+    <div class="prose mt-10">
+      <dl>
+        <dt>Provider</dt>
+        <dd><a href={LEGAL.website}>{LEGAL.entity}</a></dd>
+        <dt>Address</dt>
+        <dd>
+          {LEGAL.street}<br />
+          {LEGAL.city}<br />
+          {LEGAL.country}
+        </dd>
+        <dt>Represented by</dt>
+        <dd>{LEGAL.representedBy}</dd>
+        <dt>Email</dt>
+        <dd><a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a></dd>
+        <dt>Phone</dt>
+        <dd>{LEGAL.phone}</dd>
+        <dt>Commercial register</dt>
+        <dd>{LEGAL.registerCourt}, {LEGAL.registerNumber}</dd>
+        <dt>VAT ID</dt>
+        <dd>{LEGAL.vatId}</dd>
+      </dl>
+
+      <h2>Security issues</h2>
+      <p>To report a vulnerability, follow the <a href="/security/">security policy</a>.</p>
+
+      <h2>Names of other products</h2>
+      <p>
+        Magnetite is an independent project, not affiliated with, endorsed by or sponsored by The Browser Company. Names of
+        other products and companies appear only to describe what Magnetite works with or imports from, and may be
+        trademarks of their owners.
+      </p>
+    </div>
+  </article>
+</Base>

@@ -1,0 +1,124 @@
+---
+// A terminal that types the build-from-source steps, line by line, on a
+// loop. The commands are real (README.md); the text is also readable and
+// selectable as is.
+import { GITHUB_REPO, NODE_VERSION } from "../site";
+
+const lines: { kind: "cmd" | "out" | "ok"; text: string }[] = [
+  { kind: "out", text: `# needs Rust, Xcode tools, Node ${NODE_VERSION}+ and CEF (see the README)` },
+  { kind: "cmd", text: `git clone https://github.com/${GITHUB_REPO}` },
+  { kind: "cmd", text: "cd magnetite && scripts/bundle.sh --release" },
+  { kind: "out", text: "Compiling magnetite-core, magnetite-engine, magnetite …" },
+  { kind: "ok", text: "✓ target/bundle/Magnetite.app" },
+  { kind: "cmd", text: "open target/bundle/Magnetite.app" },
+];
+---
+
+<figure class="term" data-loop>
+  <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>zsh — magnetite</span></div>
+  <pre class="body"><code>{lines.map((l, i) => <span class={`ln ${l.kind} ln-${i}`}>{l.kind === "cmd" && <span class="prompt" aria-hidden="true">$ </span>}{l.text}</span>)}<span class="ln ln-6"><span class="prompt" aria-hidden="true">$ </span><span class="cursor" aria-hidden="true"></span></span></code></pre>
+  <figcaption class="sr-only">Building Magnetite from source on macOS</figcaption>
+</figure>
+
+<style>
+  .term {
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 16px;
+    background: #09090b;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.06),
+      0 40px 90px -30px rgb(0 0 0 / 0.9),
+      0 0 60px -25px rgb(215 166 101 / 0.35);
+  }
+  .chrome {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    height: 38px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--color-line);
+    background: #121215;
+    color: var(--color-muted);
+    font-size: 12px;
+  }
+  .chrome i {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #3a3a3f;
+  }
+  .chrome span {
+    margin-left: 8px;
+  }
+  .body {
+    margin: 0;
+    padding: 18px 20px 22px;
+    overflow-x: auto;
+    color: var(--color-secondary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.85;
+  }
+  .ln {
+    display: block;
+    white-space: pre;
+  }
+  .prompt {
+    color: var(--color-accent);
+  }
+  .out {
+    color: var(--color-muted);
+  }
+  .ok {
+    color: var(--color-tint-sage);
+  }
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    vertical-align: -2px;
+    background: var(--color-accent);
+    animation: blink 1s steps(1) infinite;
+  }
+  /* Each line appears in turn (10 s loop): clip-path reveals typed commands. */
+  .ln-1 { animation: t1 10s steps(30) infinite; }
+  .ln-2 { animation: t2 10s steps(30) infinite; }
+  .ln-3 { animation: t3 10s ease-out infinite; }
+  .ln-4 { animation: t4 10s ease-out infinite; }
+  .ln-5 { animation: t5 10s steps(24) infinite; }
+  .ln-6 { animation: t6 10s steps(1) infinite; }
+  @keyframes t1 {
+    0% { clip-path: inset(0 100% 0 0); }
+    14%, 96% { clip-path: inset(0 0 0 0); }
+    100% { clip-path: inset(0 100% 0 0); }
+  }
+  @keyframes t2 {
+    0%, 18% { clip-path: inset(0 100% 0 0); }
+    32%, 96% { clip-path: inset(0 0 0 0); }
+    100% { clip-path: inset(0 100% 0 0); }
+  }
+  @keyframes t3 {
+    0%, 36% { opacity: 0; }
+    40%, 96% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes t4 {
+    0%, 52% { opacity: 0; translate: -6px 0; }
+    56%, 96% { opacity: 1; translate: 0 0; }
+    100% { opacity: 0; }
+  }
+  @keyframes t5 {
+    0%, 60% { clip-path: inset(0 100% 0 0); }
+    74%, 96% { clip-path: inset(0 0 0 0); }
+    100% { clip-path: inset(0 100% 0 0); }
+  }
+  @keyframes t6 {
+    0%, 76% { opacity: 0; }
+    77%, 96% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+</style>

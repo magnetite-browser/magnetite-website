@@ -1,0 +1,1028 @@
+/* The live demo (/demo/). First the app's own stylesheet with the classes
+   its components use; then the window around them, and the sample pages. */
+@import "../../app/index.css";
+
+/* In the app each page fills a window of its own. Here the window is drawn,
+   and what is around it shows through (the home page behind the frame). */
+html,
+body,
+#root {
+  background: transparent;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+#root {
+  height: auto;
+  overflow: visible;
+}
+html:has(#root[data-mode="live"]) {
+  background: #0c0c0e;
+}
+/* As the tour's picture, the window is the whole frame: 1280 by 800. */
+#root[data-mode="film"] {
+  width: 100%;
+  height: 100%;
+}
+#root[data-mode="film"] ~ .demo-note {
+  display: none;
+}
+.demo-note {
+  max-width: 44rem;
+  margin: 0;
+  padding: 0 16px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+  user-select: text;
+}
+.demo-note a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---- the window ---- */
+.win {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: var(--side) minmax(0, 1fr);
+  width: min(1440px, 100vw - 32px);
+  height: min(900px, 100vh - 96px);
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.1),
+    0 30px 80px -20px rgb(0 0 0 / 0.8);
+  transition: background-color 200ms;
+}
+#root[data-mode="film"] .win {
+  width: 100%;
+  height: 100%;
+  /* The page around the frame draws the edge and the shadow. */
+  box-shadow: none;
+}
+.lights {
+  position: absolute;
+  z-index: 70;
+  left: 20px;
+  top: 15px;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+.lights i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff5f57;
+  box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.25);
+}
+.lights i:nth-child(2) {
+  background: #febc2e;
+}
+.lights i:nth-child(3) {
+  background: #28c840;
+}
+/* The sidebar is a window of its own in the app: what it positions against
+   its window (menus, the resize handle) stays with it here. */
+.side {
+  position: relative;
+  min-width: 0;
+  height: 100%;
+  contain: layout;
+}
+.area {
+  position: relative;
+  min-width: 0;
+  margin: 8px;
+}
+.panes {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  gap: 8px;
+}
+.pane {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #fff;
+}
+.zoomed {
+  height: 100%;
+}
+.pane[data-focused]::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border: 2px solid var(--space);
+  border-radius: 9px;
+  pointer-events: none;
+}
+.dim {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 0.45);
+}
+.peek {
+  position: absolute;
+  left: 50%;
+  top: 5%;
+  width: min(86%, 100% - 104px);
+  height: 90%;
+  translate: -50% 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgb(0 0 0 / 0.55);
+}
+.peek-buttons {
+  position: absolute;
+  left: calc(50% + min(43%, 50% - 52px) + 10px);
+  top: 5%;
+  display: grid;
+  gap: 8px;
+}
+.peek-buttons button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 50%;
+  background: rgb(31 31 31 / 0.94);
+  color: #fff;
+  cursor: pointer;
+}
+.peek-buttons button:hover {
+  background: rgb(52 52 52 / 0.96);
+}
+.palette-away {
+  position: absolute;
+  inset: -8px -8px -8px calc(-8px - var(--side));
+  z-index: 80;
+}
+.palette {
+  position: absolute;
+  z-index: 81;
+  left: 50%;
+  top: calc(100% / 6);
+  width: min(640px, 100% - 48px);
+  translate: -50% 0;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 1px var(--line),
+    0 24px 60px rgb(0 0 0 / 0.55);
+}
+
+/* Clicking around: things arrive with a short animation, as in the app. */
+#root[data-mode="live"] :is(.dim, .peek, .peek-buttons, .palette) {
+  animation: arrive 160ms ease-out;
+}
+@keyframes arrive {
+  from {
+    opacity: 0;
+  }
+}
+/* The tour: what arrives follows the scroll (--arriving, film.ts). */
+#root[data-mode="film"] :is(.dim, .peek, .peek-buttons, .palette) {
+  opacity: var(--arriving, 1);
+}
+#root[data-mode="film"] .peek {
+  scale: calc(0.94 + 0.06 * var(--arriving, 1));
+}
+#root[data-mode="film"] .palette {
+  translate: -50% calc((1 - var(--arriving, 1)) * -10px);
+}
+#root[data-mode="film"] .pane:last-child:not(:first-child) {
+  flex-grow: var(--arriving, 1);
+}
+
+/* The tour's pointer: its tip is at --pointer-x/y; it dips when it clicks. */
+.pointer {
+  position: absolute;
+  z-index: 90;
+  left: -4px;
+  top: -2px;
+  translate: var(--pointer-x, 0) var(--pointer-y, 0);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms;
+}
+#root[data-pointer] .pointer {
+  opacity: 1;
+}
+#root[data-still] .pointer {
+  display: none;
+}
+.pointer svg {
+  display: block;
+  fill: #111;
+  stroke: #fff;
+  stroke-width: 1.3;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.4));
+  transform-origin: 4px 2px;
+  transition: scale 120ms;
+}
+#root[data-pointer="pressed"] .pointer svg {
+  scale: 0.82;
+}
+#root[data-pointer="pressed"] .pointer::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: -12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.28);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.15);
+}
+/* The tour's label: the keys being pressed, at the bottom of the page area. */
+.keys {
+  position: absolute;
+  z-index: 85;
+  left: calc(var(--side) + (100% - var(--side)) / 2);
+  bottom: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 16px;
+  background: rgb(22 22 25 / 0.9);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 0.45);
+  color: #f0efec;
+  font: 600 17px/1 -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  white-space: nowrap;
+  translate: -50% 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 220ms,
+    translate 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.keys[data-on] {
+  translate: -50% 0;
+  opacity: 1;
+}
+.keys kbd {
+  display: grid;
+  place-items: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 9px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-bottom-width: 3px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #37373c, #29292d);
+  font: inherit;
+}
+.keys span {
+  padding: 0 4px;
+  font-weight: 500;
+}
+
+/* A narrow screen: the sidebar alone, the command bar over it. */
+@media (max-width: 700px) {
+  #root[data-mode="live"] .win {
+    grid-template-columns: minmax(0, 1fr);
+    width: min(360px, 100vw - 24px);
+  }
+  #root[data-mode="live"] .area {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+  #root[data-mode="live"] :is(.panes, .dim, .peek, .peek-buttons) {
+    display: none;
+  }
+  #root[data-mode="live"] :is(.palette, .palette-away) {
+    pointer-events: auto;
+  }
+  #root[data-mode="live"] .palette {
+    top: 56px;
+    width: calc(100% - 16px);
+  }
+}
+
+/* ---- sample pages (pages.tsx) ---- */
+.pg {
+  height: 100%;
+  overflow: auto;
+  background: #fff;
+  color: #1d1d1f;
+  font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  cursor: auto;
+  user-select: text;
+}
+/* A page being squeezed in beside another keeps its lines; it is cut off instead. */
+.pg > * {
+  min-width: 280px;
+}
+.pg-body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 44px 44px 56px;
+}
+.pg h1 {
+  margin: 0 0 14px;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  line-height: 1.12;
+}
+.pg h1 small {
+  color: #8a8a93;
+  font-weight: 400;
+}
+.pg h2 {
+  margin: 28px 0 8px;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.pg h2 small {
+  margin-left: 4px;
+  color: #8a8a93;
+  font-size: 13px;
+  font-weight: 400;
+}
+.pg p {
+  margin: 0 0 12px;
+}
+.pg ul,
+.pg ol {
+  margin: 0 0 12px;
+  padding-left: 22px;
+  list-style: disc;
+}
+.pg ol {
+  list-style: decimal;
+}
+.pg li + li {
+  margin-top: 5px;
+}
+.pg a {
+  color: #0b62d6;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.pg code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: #f0f0f3;
+  font: 0.87em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+.pg pre {
+  overflow: hidden;
+  margin: 0 0 14px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #1c1c22;
+  color: #e6e3dc;
+  font: 13px/1.65 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  white-space: pre;
+}
+.pg-kicker {
+  margin-bottom: 10px !important;
+  color: #8a8a93;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pg-lead {
+  color: #55555e;
+  font-size: 17px;
+  line-height: 1.5;
+}
+.pg-bar {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  height: 50px;
+  padding: 0 24px;
+  border-bottom: 1px solid #e8e8ec;
+  background: #fff;
+  color: #6c6c75;
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+.pg-bar strong {
+  margin-right: 8px;
+  color: #1d1d1f;
+  font-size: 15px;
+}
+.pg-bar span:first-of-type,
+.pg-bar span[data-on] {
+  color: #1d1d1f;
+  font-weight: 600;
+}
+
+.pg-roadmap {
+  background: #f5f5f7;
+}
+.pg-roadmap .pg-body {
+  max-width: 940px;
+  padding-top: 36px;
+}
+.pg-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 18px;
+  margin-top: 26px;
+}
+.pg-columns h2 {
+  margin-top: 0;
+}
+.pg-card {
+  margin-bottom: 10px;
+  padding: 12px 14px 14px;
+  border: 1px solid #e6e6ea;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+.pg-card p {
+  margin: 8px 0 12px;
+  font-weight: 550;
+  line-height: 1.35;
+}
+.pg-tag {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #f4ead4;
+  color: #6f5620;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.pg-card progress {
+  display: block;
+  width: 100%;
+  height: 5px;
+  border: 0;
+  border-radius: 3px;
+  appearance: none;
+  overflow: hidden;
+  background: #ececf0;
+}
+.pg-card progress::-webkit-progress-bar {
+  background: #ececf0;
+}
+.pg-card progress::-webkit-progress-value {
+  border-radius: 3px;
+  background: #c9973f;
+}
+.pg-card progress::-moz-progress-bar {
+  background: #c9973f;
+}
+
+.pg-doc .pg-body {
+  max-width: 660px;
+  padding-top: 56px;
+}
+.pg-checks {
+  padding-left: 0 !important;
+  list-style: none !important;
+}
+.pg-checks li {
+  position: relative;
+  padding-left: 28px;
+}
+.pg-checks li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 4px;
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid #b9b9c2;
+  border-radius: 4px;
+}
+.pg-checks li[data-done] {
+  color: #8a8a93;
+  text-decoration: line-through;
+}
+.pg-checks li[data-done]::before {
+  border-color: #3f9b5b;
+  background: #3f9b5b;
+}
+.pg-checks li[data-done]::after {
+  content: "";
+  position: absolute;
+  left: 7.5px;
+  top: 6px;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  rotate: 45deg;
+}
+
+.pg-review {
+  background: #101216;
+  color: #d5d8de;
+}
+.pg-review .pg-bar {
+  border-color: #242a34;
+  background: #161a20;
+  color: #8f97a3;
+}
+.pg-review .pg-bar strong,
+.pg-review .pg-bar span[data-on] {
+  color: #eef0f3;
+}
+.pg-review .pg-bar span:first-of-type {
+  color: inherit;
+  font-weight: inherit;
+}
+.pg-review .pg-body {
+  max-width: 800px;
+  padding-top: 34px;
+}
+.pg-review h1 {
+  font-size: 26px;
+}
+.pg-review h1 small {
+  color: #7d8592;
+}
+.pg-review code {
+  background: #1d232c;
+  color: #c9d1dc;
+}
+.pg-meta {
+  color: #8f97a3;
+  font-size: 14px;
+}
+.pg-state {
+  margin-right: 10px;
+  padding: 3px 11px;
+  border-radius: 999px;
+  background: #1f6f43;
+  color: #d9f7e5;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.pg-diff {
+  overflow: hidden;
+  margin: 18px 0 16px;
+  border: 1px solid #242a34;
+  border-radius: 10px;
+}
+.pg-file {
+  padding: 8px 14px;
+  border-bottom: 1px solid #242a34;
+  background: #161a20;
+  color: #aab2bf;
+  font: 12.5px ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+.pg-diff pre {
+  margin: 0;
+  padding: 8px 0;
+  border-radius: 0;
+  background: #0c0e12;
+  color: #c6ccd6;
+}
+.pg-diff pre span {
+  display: block;
+  padding: 0 14px;
+}
+.pg-diff pre span[data-sign="+"] {
+  background: rgb(46 160 67 / 0.17);
+  color: #b9efc8;
+}
+.pg-diff pre span[data-sign="-"] {
+  background: rgb(248 81 73 / 0.15);
+  color: #ffc9c4;
+}
+.pg-checklist {
+  padding: 4px 14px !important;
+  border: 1px solid #242a34;
+  border-radius: 10px;
+  list-style: none !important;
+}
+.pg-checklist li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 !important;
+  padding: 8px 0;
+  font-size: 14px;
+}
+.pg-checklist li + li {
+  border-top: 1px solid #1c2129;
+}
+.pg-checklist li::before {
+  content: "";
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d9a441;
+  box-shadow: 0 0 0 3px rgb(217 164 65 / 0.2);
+}
+.pg-checklist li[data-done]::before {
+  background: #3fb968;
+  box-shadow: 0 0 0 3px rgb(63 185 104 / 0.2);
+}
+.pg-checklist small {
+  margin-left: auto;
+  color: #7d8592;
+  font-size: 12.5px;
+}
+
+.pg-article {
+  background: #fbfaf7;
+}
+.pg-article .pg-body {
+  max-width: 640px;
+  padding-top: 56px;
+  font: 17px/1.7 ui-serif, "New York", Georgia, "Times New Roman", serif;
+}
+.pg-article h1 {
+  font-size: 38px;
+}
+.pg-article .pg-kicker,
+.pg-article h1 {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+.pg-article .pg-lead {
+  font-size: 20px;
+}
+
+.pg-recipe {
+  background: #fffaf2;
+}
+.pg-hero {
+  padding: 56px 44px 30px;
+  background:
+    radial-gradient(120% 140% at 85% 0%, #f0a54a 0%, transparent 55%),
+    linear-gradient(135deg, #f7dcae, #f3c98a);
+  color: #4a2c0a;
+}
+.pg-hero .pg-kicker {
+  color: #8a5a1c;
+}
+.pg-hero h1 {
+  margin: 0;
+  font: 700 52px/1 ui-serif, "New York", Georgia, serif;
+  letter-spacing: -0.02em;
+}
+.pg-two {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 40px;
+  max-width: 820px;
+  padding-top: 20px;
+}
+
+.pg-hike {
+  background: #f3f7f1;
+}
+.pg-hike .pg-body {
+  padding-top: 52px;
+}
+.pg-stats {
+  display: flex;
+  gap: 12px;
+  margin: 18px 0 22px;
+}
+.pg-stats div {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #dbe6d7;
+  border-radius: 12px;
+  background: #fff;
+}
+.pg-stats dt {
+  color: #6f7f6b;
+  font-size: 12.5px;
+}
+.pg-stats dd {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.pg-profile {
+  display: block;
+  width: 100%;
+  height: 150px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #dbe6d7;
+}
+.pg-profile .fill {
+  fill: rgb(96 160 104 / 0.22);
+}
+.pg-profile .line {
+  fill: none;
+  stroke: #4f8a57;
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.pg-home {
+  display: grid;
+  place-items: center;
+  background: radial-gradient(60% 60% at 50% 35%, #2a1a12, #0c0c0e 70%);
+  color: #f0efec;
+  text-align: center;
+}
+.pg-home .pg-body {
+  padding: 40px;
+}
+.pg-home img {
+  display: block;
+  margin: 0 auto 26px;
+  border-radius: 22%;
+}
+.pg-home h1 {
+  font-size: 46px;
+  line-height: 1;
+}
+.pg-home em {
+  color: #d7a665;
+  font-style: normal;
+}
+.pg-home .pg-lead {
+  max-width: 30rem;
+  margin: 0 auto;
+  color: #c4c2bf;
+}
+
+.pg-sample {
+  display: grid;
+  place-items: center;
+  background: #f7f7f9;
+  text-align: center;
+}
+.pg-sample .pg-lead {
+  max-width: 30rem;
+  margin: 0 auto;
+}
+
+/* ---- parts only the feature cards use ---- */
+
+/* Magnetite's own page (Settings) as a tab's page: it fills the page area as it fills its window in the app. */
+.pg-app {
+  height: 100%;
+  background: var(--bg);
+  /* What it positions against its window stays in the page area. */
+  contain: layout;
+}
+/* The capture tool has a window over the page in the app; here the page shows through it instead of a picture of the page. */
+.capture-host {
+  position: absolute;
+  inset: 0;
+  contain: layout;
+}
+.capture-host .capture-root {
+  background: rgb(0 0 0 / 0.12);
+}
+.capture-host .capture-image {
+  display: none;
+}
+
+/* The picture of the sample video: a sun coming up behind hills. */
+.footage {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #2b3a67 0%, #b56576 55%, #f6bd60 100%);
+}
+.footage::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 22%;
+  aspect-ratio: 1;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff3c4, #f9c74f 60%, rgb(249 199 79 / 0) 72%);
+  animation: sunrise 9s ease-in-out infinite alternate;
+}
+.footage::after {
+  content: "";
+  position: absolute;
+  inset: 62% -10% -40%;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: #1f2d3d;
+  box-shadow: 28vw 3vh 0 4vh #162230;
+}
+@keyframes sunrise {
+  to {
+    top: 30%;
+  }
+}
+.pg-video {
+  background: #101216;
+  color: #d5d8de;
+}
+.pg-video .pg-bar {
+  border-color: #242a34;
+  background: #161a20;
+  color: #8f97a3;
+}
+.pg-video .pg-bar strong,
+.pg-video .pg-bar span:first-of-type {
+  color: #eef0f3;
+}
+.pg-video .pg-body {
+  max-width: 820px;
+  padding-top: 28px;
+}
+.pg-video .footage {
+  aspect-ratio: 16 / 9;
+  margin-bottom: 22px;
+  border-radius: 12px;
+}
+.pg-video .pg-lead {
+  color: #9aa3af;
+}
+
+/* A video floating over the page (picture-in-picture), with Magnetite's
+   controls (crates/engine/src/pip.rs): Back to Tab, Minimize and Close on
+   top, 15 s back, play and 15 s forward in the middle, shown while the
+   pointer is over it. */
+.pip {
+  position: absolute;
+  z-index: 60;
+  right: 16px;
+  bottom: 16px;
+  width: 336px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.12),
+    0 24px 60px rgb(0 0 0 / 0.6);
+  animation: arrive 220ms ease-out;
+}
+.pip .footage {
+  position: absolute;
+  inset: 0;
+}
+.pip:not([data-playing]) .footage::before {
+  animation-play-state: paused;
+}
+.pip-controls {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.28);
+  opacity: 0;
+  transition: opacity 200ms;
+}
+.pip:hover .pip-controls,
+.pip[data-hover] .pip-controls,
+.pip:has([data-hover]) .pip-controls {
+  opacity: 1;
+}
+.pip button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 8px;
+  background: rgb(31 31 31 / 0.82);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.pip-top {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  gap: 6px;
+}
+.pip-top button {
+  min-width: 26px;
+  height: 26px;
+  padding: 0 10px;
+}
+.pip-top button:first-child {
+  margin-right: auto;
+}
+.pip-middle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  pointer-events: none;
+}
+.pip-middle button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  pointer-events: auto;
+}
+.pip-middle .pip-play {
+  width: 52px;
+  height: 52px;
+}
+
+/* The popup of the sample extension, at the page's top left as in the app. */
+.ext-popup {
+  position: absolute;
+  z-index: 60;
+  left: 8px;
+  top: 8px;
+  width: 250px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.12),
+    0 18px 50px rgb(0 0 0 / 0.45);
+  color: #1d1d1f;
+  font-size: 13px;
+  animation: arrive 160ms ease-out;
+}
+.ext-popup p {
+  margin: 2px 0 8px;
+  color: #6c6c75;
+  font-size: 12px;
+}
+.ext-popup li {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 8px;
+}
+.ext-popup li[data-on] {
+  background: #eef3fd;
+}
+.ext-popup li span {
+  flex: 1;
+}
+.ext-popup small {
+  color: #0b62d6;
+  font-weight: 600;
+}
+
+/* What the tour's pointer rests on looks as under a real pointer: the
+   app's own :hover rules, for the things the scenes point at. */
+#root :is(.row, .split-cell)[data-hover],
+#root .row:has([data-hover]) {
+  background: var(--row-hover);
+}
+#root .row:has(.close[data-hover]) .close {
+  opacity: 1;
+  color: var(--fg);
+  background: rgb(255 255 255 / 0.14);
+}
+#root :is(.ib, .ext-btn, .addr-chip, .addr-copy)[data-hover]:not(:disabled) {
+  background: rgb(255 255 255 / 0.08);
+  color: var(--fg);
+}
+#root .seg button[data-hover]:not([data-on]),
+#root .btn[data-hover] {
+  background: rgb(255 255 255 / 0.1);
+}
+#root .pip button[data-hover] {
+  background: rgb(60 60 60 / 0.9);
+}
+
+/* A card's label sits where the scene puts it (film.ts) instead of at the bottom of the page area. */
+.keys[data-placed] {
+  left: var(--keys-x);
+  top: var(--keys-y);
+  bottom: auto;
+  padding: 7px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+.keys[data-placed] kbd {
+  min-width: 27px;
+  height: 27px;
+  padding: 0 7px;
+  border-radius: 7px;
+}

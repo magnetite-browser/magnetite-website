@@ -1,0 +1,180 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHeader from "../components/PageHeader.astro";
+import { HOSTING, LEGAL, SYNC, WEBSITE_REPO, docs } from "../site";
+
+const privacyMail = `mailto:${LEGAL.privacyEmail}`;
+---
+
+<Base
+  title="Privacy policy"
+  description="What this website and the Magnetite browser do with your data: no cookies, visitor statistics on our own server, no telemetry in the browser."
+>
+  <PageHeader eyebrow="Legal" title="Privacy policy">
+    <p class="mt-5 font-mono text-xs tracking-wide text-muted">Last updated: 10 November 2026</p>
+  </PageHeader>
+  <article class="mx-auto max-w-3xl px-5 pt-12">
+
+    <div class="glass rounded-2xl p-6 leading-relaxed text-secondary">
+      <p class="font-semibold text-fg">In short</p>
+      <p class="mt-2">
+        This website sets no cookies. It counts visits with Umami, an open-source tool we run on our own servers in
+        {HOSTING.location}, without storing your IP address. The Magnetite browser sends no telemetry and needs no account.
+        The details follow.
+      </p>
+    </div>
+
+    <div class="prose mt-4">
+      <h2 id="controller">1. Who is responsible</h2>
+      <p>
+        Responsible for this website (the controller under the GDPR) is {LEGAL.entity}, {LEGAL.street}, {LEGAL.city},
+        {LEGAL.country}. For anything about your data, write to <a href={privacyMail}>{LEGAL.privacyEmail}</a>. See also
+        the <a href="/imprint/">imprint</a>.
+      </p>
+
+      <h2 id="website">2. This website</h2>
+      <h3>What it does not do</h3>
+      <ul>
+        <li>
+          No cookies and no other storage in your browser. The site’s own scripts only run its animations and the live demo
+          of the sidebar; they send nothing and store nothing.
+        </li>
+        <li>No advertising, no tracking pixels, no tracking across other websites.</li>
+        <li>
+          No content from other companies. Text, images, styles, scripts and the one web font come from this server; the
+          one exception is the statistics script described below, which comes from our own statistics server. There are no
+          embedded videos, maps or social media buttons. The live demo shows sample pages that are part of this site; it
+          loads no website.
+        </li>
+        <li>
+          No forms. We do not collect anything you type; what you type into the live demo (its command bar, its archive
+          search) stays in the page.
+        </li>
+        <li>
+          Links to other sites, such as GitHub, are plain links: the other site is contacted only if you follow one, and our
+          pages ask your browser not to tell it where you came from.
+        </li>
+      </ul>
+
+      <h3 id="statistics">Visitor statistics</h3>
+      <p>
+        To see how many people visit this site and which pages they read, we use Umami, an open-source analytics tool that
+        we run ourselves on our own infrastructure in {HOSTING.location}.
+      </p>
+      <ul>
+        <li>
+          Umami records the page’s address and title, the referring page if your browser sends one, your screen size and
+          your browser’s language.
+        </li>
+        <li>
+          From the request it works out your browser, operating system and device type, and an approximate location
+          looked up from your IP address (at most country, region and city).
+        </li>
+        <li>
+          Your IP address is not stored. Umami sets no cookies and stores nothing in your browser. To count several page
+          views of one visitor as one visit, it computes a hash that changes regularly and cannot be turned back into the
+          data it was made from.
+        </li>
+      </ul>
+      <p>
+        Legal basis: Art. 6(1)(f) GDPR. Our legitimate interest is to learn which pages are useful and to improve the site.
+        The data is processed and stored in {HOSTING.location} only; we do not combine it with other data and do not pass it
+        on. You can object to this processing at any time (Art. 21 GDPR): write to
+        <a href={privacyMail}>{LEGAL.privacyEmail}</a>. If a content blocker stops Umami’s script, the site works the same.
+      </p>
+
+      <h3>Hosting and server logs</h3>
+      <p>
+        The site and the statistics server run on our own infrastructure, on servers of a hosting provider in
+        {HOSTING.location} that processes data on our behalf (Art. 28 GDPR). When you open a page, your browser sends the
+        usual request data: your IP address, date and time, the address requested, the referring page if your browser sends
+        one, and your browser’s user agent. We keep these in server logs to deliver the site and to keep it secure, and
+        delete them after {HOSTING.logRetention}.
+      </p>
+      <p>
+        Legal basis: Art. 6(1)(f) GDPR. Our legitimate interest is a website that works and stays secure. We do not combine
+        this data with other data and do not use it to identify you.
+      </p>
+
+      <h2 id="browser">3. The Magnetite browser</h2>
+      <p>
+        Magnetite runs on your device. The Magnetite project receives no data from it: no telemetry, no usage statistics, no
+        account. Nothing below goes to us.
+      </p>
+
+      <h3>What stays on your device</h3>
+      <ul>
+        <li>
+          Spaces, tabs, the archive, history, settings and cached site icons live in Magnetite’s data folder, which only your
+          user account can read.
+        </li>
+        <li>
+          Private profiles live in memory. Their tabs are not saved, synced or archived, and their site icons are not cached.
+        </li>
+        <li>
+          Importing from another browser (Arc, Chromium-based browsers, Firefox, Zen) reads that browser’s files on your
+          computer when you click Import, and Arc’s sidebar also on first start. Magnetite keeps only what ends up in the
+          sidebar: addresses, titles and folder names. Nothing is uploaded, and passwords and cookies are never read.
+        </li>
+        <li>The sidebar shows icons only of sites you have opened; it never fetches icons of other sites.</li>
+        <li>Magnetite keeps your last screenshot in memory only, until you dismiss or replace it.</li>
+      </ul>
+
+      <h3 id="updates">Checking for updates</h3>
+      <p>
+        At start and once a day, Magnetite asks GitHub Releases (GitHub, Inc., USA) whether a new signed version exists. It
+        is a plain request for the latest release, straight from your computer to GitHub: GitHub sees your IP address and
+        the browser’s user agent, and nothing else is sent. You can turn the check off in Settings → About.
+      </p>
+
+      <h3>Sync</h3>
+      <p>
+        Sync is off until you turn it on. Then it talks to the server you pick in Settings → Sync: Magnetite’s free server
+        at <code>{SYNC.host}</code> or one you run yourself. Your devices encrypt everything before upload, and the 24-word
+        sync code never leaves them. A <code>magnetite-sync</code> server stores:
+      </p>
+      <ul>
+        <li>the sync chain’s id, which is an anonymous public key;</li>
+        <li>the day the chain was created and the day it was last used;</li>
+        <li>opaque collection ids and version numbers;</li>
+        <li>the encrypted, padded data.</li>
+      </ul>
+      <p>
+        No email address, password, device name, IP address or readable content. The server does not log requests. Chains
+        unused for 400 days are deleted (the operator can change this), and “Delete sync chain” in Settings erases one at
+        once. The chain’s key and its two dates are pseudonymous data: they are not tied to your name or email, but they
+        stay the same for your devices. If you run your own server, you are responsible for it and for what any reverse
+        proxy in front of it logs. Details: <a href={docs.syncServer}>sync server README</a>, <a href={docs.syncAdr}
+          >sync design</a
+        >.
+      </p>
+
+      <h3>Magnetite’s sync server</h3>
+      <p>
+        <code>{SYNC.host}</code> is run by the controller named in section 1 and hosted by {SYNC.hosting}, which processes the
+        data on our behalf under a data processing agreement (Art. 28 GDPR). To deliver the service and protect it from
+        abuse, the reverse proxy in front of it processes your IP address while a request runs and to limit how many
+        requests one address can make; it writes no access logs. The legal basis is our legitimate interest in running the
+        service securely (Art. 6(1)(f) GDPR). Backups of the database are kept for {SYNC.backupDays} days, so a deleted
+        chain is gone from them after that. Using the server needs no sign-up. How it is set up: <a href={docs.syncPublic}
+          >public instance</a
+        >.
+      </p>
+
+      <h2 id="rights">4. Your rights</h2>
+      <p>
+        Under the GDPR you have the right of access (Art. 15), rectification (Art. 16), erasure (Art. 17), restriction of
+        processing (Art. 18), data portability (Art. 20) and to object (Art. 21). Write to
+        <a href={privacyMail}>{LEGAL.privacyEmail}</a>. You also have the right to lodge a complaint with a data protection
+        supervisory authority (Art. 77): the one responsible for us, the {LEGAL.authority}, or the one in the EU Member State
+        where you live or work.
+      </p>
+
+      <h2 id="changes">5. Changes</h2>
+      <p>
+        We update this policy when the website or the browser changes. The current version is always on this page, and its
+        history is public in the <a href={WEBSITE_REPO}>website’s repository</a>.
+      </p>
+    </div>
+  </article>
+</Base>

@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # The image as the deployment builds it: its build checks the types, builds
+  # the site and checks the built pages (every link, nothing from another
+  # origin, the Content-Security-Policy). Then it is started and asked for
+  # its pages and headers.
+  build:
+    name: Build and check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build the image
+        run: docker build --build-arg REVISION="$GITHUB_SHA" --tag magnetite-website:ci .
+      - name: Start it
+        run: scripts/smoke-test.sh magnetite-website:ci

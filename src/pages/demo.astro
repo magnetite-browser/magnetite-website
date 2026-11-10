@@ -1,0 +1,32 @@
+---
+// The live demo, a page of its own without the site's header: on the home
+// page it is the picture of the tour (in a frame, `?film`), opened directly
+// it is a window to click around in. See src/demo/main.tsx.
+const csp = ["default-src 'none'", "script-src 'self'", "img-src 'self'", "style-src 'self'", "font-src 'self'", "base-uri 'none'", "form-action 'none'"].join("; ");
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content={csp} />}
+    <meta name="referrer" content="no-referrer" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="robots" content="noindex" />
+    <title>Live demo · Magnetite</title>
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <p class="demo-note">
+      A live demo: the sidebar and the command bar are Magnetite’s own code, the pages are samples, and nothing is loaded from the
+      web. <a href="/">Back to magnetitebrowser.org</a>
+    </p>
+    <noscript><p class="demo-note">The live demo needs JavaScript. <a href="/">Back to magnetitebrowser.org</a></p></noscript>
+    <script>
+      import "../demo/main";
+    </script>
+  </body>
+</html>

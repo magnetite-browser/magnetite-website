@@ -1,0 +1,85 @@
+---
+// Page shell: head (CSP, meta, Open Graph), header, main, footer, and the one
+// motion script. Every script is a bundled file on this site, except the
+// visitor statistics script from our own Umami server (STATS in site.ts,
+// described in the privacy policy); the CSP allows nothing else.
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { defaultLang, useTranslations, type Lang } from "../i18n/ui";
+import { STATS } from "../site";
+
+/** `index={false}` for pages that should not be indexed or have a canonical address (404). */
+type Props = { title: string; description: string; lang?: Lang; index?: boolean };
+const { title, description, lang = defaultLang, index = true } = Astro.props;
+const t = useTranslations(lang);
+const fullTitle = title === "Magnetite" ? title : `${title} · Magnetite`;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+// Same policy the web server sends as a header (Caddyfile), where frame-ancestors is added:
+// scripts/smoke-test.sh compares the two.
+// Built pages only: the dev server injects inline styles and its own client script.
+const csp = [
+  "default-src 'none'",
+  `script-src 'self' ${STATS.origin}`,
+  // Where the statistics script reports a visit.
+  `connect-src ${STATS.origin}`,
+  "img-src 'self'",
+  "style-src 'self'",
+  "font-src 'self'",
+  // The tour's live window: this site's own /demo/ page.
+  "frame-src 'self'",
+  "base-uri 'none'",
+  "form-action 'none'",
+].join("; ");
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content={csp} />}
+    <meta name="referrer" content="no-referrer" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0c0c0e" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {index ? <link rel="canonical" href={canonical} /> : <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Magnetite" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL("/og.png", Astro.site).href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Magnetite: your tabs, magnetized. An iron ring wound with copper wire beside the words. Open source, no telemetry." />
+    <meta property="og:locale" content="en_GB" />
+    {
+      // Built pages only, and the script counts visits to the real site only (data-domains).
+      import.meta.env.PROD && (
+        <script is:inline defer src={STATS.script} data-website-id={STATS.websiteId} data-domains={Astro.site?.hostname} />
+      )
+    }
+  </head>
+  <body class="min-h-screen bg-ink text-fg antialiased">
+    <a
+      href="#main"
+      class="sr-only z-50 rounded-lg bg-accent px-4 py-2 font-semibold text-ink focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+    >
+      {t("skip")}
+    </a>
+    <Header lang={lang} />
+    <main id="main" tabindex="-1" class="focus:outline-none">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+    <script>
+      import "../scripts/motion";
+    </script>
+  </body>
+</html>

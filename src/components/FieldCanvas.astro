@@ -1,0 +1,17 @@
+---
+// Full-bleed canvas of iron filings (src/scripts/field.ts). `anchor` is a
+// CSS selector for the element the magnet sits on. Decorative.
+type Props = { anchor?: string; class?: string };
+const { anchor, class: className } = Astro.props;
+---
+
+<canvas data-field data-anchor={anchor} class:list={["block h-full w-full", className]} aria-hidden="true"></canvas>
+
+<script>
+  import { startField } from "../scripts/field";
+
+  for (const canvas of document.querySelectorAll<HTMLCanvasElement>("canvas[data-field]")) {
+    const selector = canvas.dataset.anchor;
+    startField(canvas, selector ? document.querySelector<HTMLElement>(selector) : null);
+  }
+</script>

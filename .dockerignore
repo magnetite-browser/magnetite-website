@@ -1,0 +1,5 @@
+# Only sources go into the container build.
+.git
+node_modules
+dist
+.astro

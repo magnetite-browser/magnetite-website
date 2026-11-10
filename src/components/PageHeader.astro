@@ -1,0 +1,33 @@
+---
+// Top band of the inner pages: a quiet filings field, eyebrow, title, lead.
+import FieldCanvas from "./FieldCanvas.astro";
+
+type Props = { eyebrow: string; title: string; lead?: string };
+const { eyebrow, title, lead } = Astro.props;
+---
+
+<header class="page-head relative isolate overflow-hidden border-b border-line">
+  <div class="absolute inset-0 -z-10 opacity-70"><FieldCanvas /></div>
+  <div class="shade absolute inset-0 -z-10" aria-hidden="true"></div>
+  <div class="mx-auto max-w-3xl px-5 pt-20 pb-16 sm:pt-28 sm:pb-20">
+    <p class="eyebrow load">{eyebrow}</p>
+    <h1 class="load mt-5 font-display text-[clamp(2.75rem,7vw,4.75rem)] leading-[0.95] font-semibold tracking-[-0.04em] d-1">
+      <Fragment set:html={title} />
+    </h1>
+    {lead && <p class="load mt-6 max-w-2xl text-lg leading-relaxed text-secondary d-2">{lead}</p>}
+    <slot />
+  </div>
+</header>
+
+<style>
+  .shade {
+    background:
+      radial-gradient(70% 90% at 50% 0%, rgb(12 12 14 / 0.35), rgb(12 12 14 / 0.88) 70%),
+      linear-gradient(180deg, transparent 60%, var(--color-ink));
+    pointer-events: none;
+  }
+  .load {
+    animation: rise 1.1s var(--ease-out-expo) both;
+    animation-delay: calc(0.1s + var(--i, 0) * 0.1s);
+  }
+</style>

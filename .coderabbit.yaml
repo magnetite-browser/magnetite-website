@@ -1,0 +1,131 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit reviews pull requests: useful, low noise, nothing kept or shared
+# beyond the review itself.
+language: en-US
+tone_instructions: >-
+  Be brief and concrete. Plain English. Only comment when something is wrong,
+  risky or clearly simpler another way.
+early_access: false
+
+reviews:
+  profile: chill
+  # No automatic approvals or change requests; maintainers decide.
+  auto_approvals:
+    enabled: false
+  high_level_summary: true
+  poem: false
+  in_progress_fortune: false
+  sequence_diagrams: false
+  estimate_code_review_effort: false
+  related_issues: false
+  related_prs: false
+  suggested_labels: false
+  suggested_reviewers: false
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches: ["^main$"]
+  path_filters:
+    - "!pnpm-lock.yaml"
+    - "!public/**"
+    # A copy of the browser's interface code, reviewed in its own repository.
+    - "!app/**"
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
+    title:
+      mode: warning
+      requirements: >-
+        Conventional Commits with a short subject, e.g. "fix(download): link
+        the Intel build". Types: feat, fix, docs, refactor, test, build, ci,
+        chore, perf.
+  path_instructions:
+    - path: "src/**"
+      instructions: |
+        The site promises that it sets no cookies, stores nothing in the browser and loads
+        nothing from another server except the visitor statistics script from the project's
+        own Umami server (src/pages/privacy.astro, README.md). Flag any change that breaks
+        one of these:
+        - No request to another origin besides that script (STATS in src/site.ts): no CDN,
+          font service, embed, map, video or badge, and no second analytics tool. Fonts and
+          images come from this repository.
+        - The Content-Security-Policy (src/layouts/Base.astro, src/pages/demo.astro,
+          Caddyfile) stays as strict as it is: no inline scripts, no inline style attributes
+          in markup, no data: addresses, frames only from this site, and the statistics
+          server as the only other origin. The three places must agree.
+        - No cookies, localStorage, sessionStorage or IndexedDB.
+        - Every page reads and works without JavaScript; with "reduce motion" nothing loops,
+          follows the scroll or is hidden for an entrance.
+        - Facts about the project (links, versions, platforms, contacts) come from
+          src/site.ts, not from text in a page.
+    - path: "src/pages/{privacy,imprint,license,security}.astro"
+      instructions: |
+        Legal pages. Their statements must match what the site and the browser really do; a
+        code change that makes one untrue must change the text as well. The company's details,
+        the hosting facts and the statistics server come from src/site.ts; flag a pull request
+        that changes them without saying where the new facts come from.
+    - path: "src/demo/**"
+      instructions: |
+        The live demo runs the browser's own sidebar code, a copy of which is in app/ (alias
+        `@app`). It must not re-implement those components: what the app draws natively is
+        drawn here, everything else is the app's. Sample data uses invented names and
+        example.org addresses only, and nothing is loaded from the web. As a frame on the
+        home page (`?film`) it never takes the keyboard or the pointer and never writes to
+        the clipboard. host.ts answers the sidebar's commands as the app would; a command it
+        does not know is accepted and does nothing.
+    - path: "src/scripts/**"
+      instructions: |
+        Small, dependency-free TypeScript that only enhances the pages. Work stops while its
+        element is off screen or the tab is hidden. No `any`; inferred types where possible.
+    - path: "**/*.{ts,tsx}"
+      instructions: |
+        TypeScript in strictest mode. No `any`, no casting wrappers, types inferred where
+        they can be. Comments: concise, above functions and types, updated with the code.
+    - path: "{scripts,.github}/**"
+      instructions: |
+        Scripts are Node without dependencies, POSIX sh or Swift (macOS only, for pictures
+        that are committed). Workflows pin every action to a full commit SHA and ask for no
+        more than read access.
+    - path: "{Dockerfile,Caddyfile}"
+      instructions: |
+        The image the deployment runs. Base images are pinned by digest. The container runs
+        as an unprivileged user, writes nothing and logs no requests. The security headers
+        in the Caddyfile match the policy in src/layouts/Base.astro.
+    - path: "**/*.md"
+      instructions: |
+        Plain, short English. Facts (commands, file names, sizes, headers) must match the
+        repository. No marketing language.
+
+chat:
+  art: false
+  auto_reply: false
+  integrations:
+    jira:
+      usage: disabled
+    linear:
+      usage: disabled
+
+knowledge_base:
+  # No data kept between reviews (learnings, indexed issues and PRs).
+  opt_out: true
+  web_search:
+    enabled: false
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - README.md
+      - CONTRIBUTING.md
+  jira:
+    usage: disabled
+  linear:
+    usage: disabled
+  mcp:
+    usage: disabled
+  automatic_linking_mode: disabled
+
+issue_enrichment:
+  auto_enrich:
+    enabled: false
+  planning:
+    enabled: false

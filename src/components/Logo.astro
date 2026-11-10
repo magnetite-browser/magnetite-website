@@ -1,0 +1,122 @@
+---
+// The Magnetite icon on a page: an iron ring wound with copper wire, with a
+// glowing pole. The artwork is the designer's file in src/brand/ (also in
+// public/ as logo.svg and favicon.svg); this component inlines it so parts of
+// it can move. The same artwork at every size, down to the header's 30 px.
+//
+// motion: "none"; "hover": current runs through the coil once when the
+//   surrounding link is hovered or focused; "live": current keeps running,
+//   the pole pulses and the field line breathes (hero).
+import icon from "../brand/magnetite.svg?raw";
+
+type Props = {
+  /** Prefix for the SVG's gradient and filter ids; unique per page (e.g. "header"). */
+  id: string;
+  size?: number;
+  motion?: "none" | "hover" | "live";
+  class?: string;
+  /** Accessible name; without it the icon is decorative. */
+  label?: string;
+};
+const { id, size, motion = "none", class: className, label } = Astro.props;
+
+// Gradient and filter ids must be unique when the icon appears more than once.
+const prefix = `mg-${id}-`;
+const classes = ["logo", `logo-${motion}`, className].filter(Boolean).join(" ");
+const a11y = label ? `role="img" aria-label="${label}"` : `aria-hidden="true"`;
+const dims = size ? ` width="${size}" height="${size}"` : "";
+
+const svg = icon
+  .replace(/<svg\b[^>]*>/, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"${dims} class="${classes}" ${a11y} focusable="false">`)
+  .replace(/\bid="([^"]+)"/g, `id="${prefix}$1"`)
+  .replace(/url\(#([^)]+)\)/g, `url(#${prefix}$1)`)
+  // Hooks for the animation: the windings, the pole and its glow, the outer field line.
+  .replace('<g fill="#E2622B">', '<g class="coil" fill="#E2622B">')
+  .replace(/<circle cx="406" cy="256" r="22"/, '<circle class="pole-glow" cx="406" cy="256" r="22"')
+  .replace(/<circle cx="406" cy="256" r="14"/, '<circle class="pole" cx="406" cy="256" r="14"')
+  .replace(/<path d="M 330 46/, '<path class="field-line" d="M 330 46');
+---
+
+<Fragment set:html={svg} />
+
+<style is:global>
+  .logo .pole,
+  .logo .pole-glow {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  /* Current through the coil: each winding glows in turn. */
+  .logo-live .coil rect {
+    animation: logo-current 2.6s ease-in-out infinite;
+  }
+  a:hover > .logo-hover .coil rect,
+  a:focus-visible > .logo-hover .coil rect {
+    animation: logo-current 0.9s ease-in-out;
+  }
+  .logo .coil rect:nth-child(2) { animation-delay: 0.06s; }
+  .logo .coil rect:nth-child(3) { animation-delay: 0.12s; }
+  .logo .coil rect:nth-child(4) { animation-delay: 0.18s; }
+  .logo .coil rect:nth-child(5) { animation-delay: 0.24s; }
+  .logo .coil rect:nth-child(6) { animation-delay: 0.3s; }
+  .logo .coil rect:nth-child(7) { animation-delay: 0.36s; }
+  .logo .coil rect:nth-child(8) { animation-delay: 0.42s; }
+  .logo .coil rect:nth-child(9) { animation-delay: 0.48s; }
+  .logo .coil rect:nth-child(10) { animation-delay: 0.54s; }
+  .logo .coil rect:nth-child(11) { animation-delay: 0.6s; }
+  .logo .coil rect:nth-child(12) { animation-delay: 0.66s; }
+  .logo .coil rect:nth-child(13) { animation-delay: 0.72s; }
+  .logo .coil rect:nth-child(14) { animation-delay: 0.78s; }
+  .logo .coil rect:nth-child(15) { animation-delay: 0.84s; }
+  .logo .coil rect:nth-child(16) { animation-delay: 0.9s; }
+  .logo .coil rect:nth-child(17) { animation-delay: 0.96s; }
+  .logo-live .pole {
+    animation: logo-pole 2.6s ease-in-out 1s infinite;
+  }
+  .logo-live .pole-glow {
+    animation: logo-glow 2.6s ease-in-out 1s infinite;
+  }
+  .logo-live .field-line {
+    animation: logo-field 5.2s ease-in-out infinite;
+  }
+  @keyframes logo-current {
+    0%,
+    40%,
+    100% {
+      fill: #e2622b;
+    }
+    12% {
+      fill: #ffc08a;
+    }
+  }
+  @keyframes logo-pole {
+    0%,
+    100% {
+      scale: 1;
+      fill: #e2622b;
+    }
+    20% {
+      scale: 1.3;
+      fill: #ff9a5c;
+    }
+  }
+  @keyframes logo-glow {
+    0%,
+    100% {
+      opacity: 0.85;
+      scale: 1;
+    }
+    20% {
+      opacity: 1;
+      scale: 1.8;
+    }
+  }
+  @keyframes logo-field {
+    0%,
+    100% {
+      opacity: 0.16;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+</style>

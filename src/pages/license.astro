@@ -1,0 +1,73 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHeader from "../components/PageHeader.astro";
+import { EUPL_TEXTS, WEBSITE_REPO, docs } from "../site";
+---
+
+<Base
+  title="Licence"
+  description="Magnetite is free software under the European Union Public Licence v1.2 (EUPL-1.2)."
+>
+  <PageHeader
+    eyebrow="Legal"
+    title="Licence"
+    lead="Magnetite is free software under the European Union Public Licence, version 1.2 (EUPL-1.2)."
+  />
+  <article class="mx-auto max-w-3xl px-5 pt-4">
+
+    <div class="prose mt-8">
+      <h2 id="plain-words">In plain words</h2>
+      <p>This summary helps you read the licence; it does not replace it.</p>
+      <ul>
+        <li>You may use Magnetite for any purpose, study and change its source code, and share it, changed or not.</li>
+        <li>
+          If you distribute a changed version, or let others use it over a network (a modified sync server offered as a
+          service, for example), you must offer them its source code, as a copy or a link to where it is freely
+          available, under the EUPL or a licence the EUPL lists as compatible, and keep the copyright and licence notices.
+        </li>
+        <li>Magnetite comes without warranty, as far as the law allows.</li>
+      </ul>
+
+      <h2 id="text">Licence text</h2>
+      <ul>
+        <li><a href={docs.license}>LICENSE</a> in the repository: the official English text, unmodified.</li>
+        <li>
+          <a href={EUPL_TEXTS}>Official texts in every EU language</a>, published by the European Commission. All language
+          versions have equal value.
+        </li>
+        <li><a href={docs.licenseAdr}>Why we chose the EUPL</a> (architecture decision record).</li>
+      </ul>
+
+      <h2 id="third-party">Third-party software</h2>
+      <p>
+        Magnetite embeds Chromium through the Chromium Embedded Framework and uses open-source libraries. They keep their own
+        licences. The <a href={docs.notices}>third-party notices</a> list them with their licence texts and will ship inside
+        every Magnetite package.
+      </p>
+
+      <h2 id="contributing">Contributions</h2>
+      <p>
+        Contributions come in under the EUPL-1.2; there is no contributor licence agreement and you keep your copyright. See <a href={docs.contributing}>CONTRIBUTING.md</a>.
+      </p>
+
+      <h2 id="website">This website</h2>
+      <p>
+        The website’s source has its own repository, <a href={WEBSITE_REPO}>magnetite-website</a>, under the same licence. The headings use Bricolage Grotesque (SIL Open Font License 1.1), served from this site; the logo and the
+        icons were drawn for Magnetite. The live demo runs the app’s sidebar and, with it, React (MIT) and Lucide icons
+        (ISC); their notices are in the demo’s script and in the <a href={docs.notices}>third-party notices</a>.
+      </p>
+
+      <h2 id="article-11">Information under Article 11 EUPL</h2>
+      <dl>
+        <dt>Licensor</dt>
+        <dd>The Magnetite contributors; publisher: see the <a href="/imprint/">imprint</a></dd>
+        <dt>Licence</dt>
+        <dd>European Union Public Licence v1.2</dd>
+        <dt>Access</dt>
+        <dd>You can read, download, store and print the licence text from the links above, and every package will include it.</dd>
+      </dl>
+
+      <p class="text-sm">Copyright © 2026 the Magnetite contributors. Licensed under the EUPL.</p>
+    </div>
+  </article>
+</Base>

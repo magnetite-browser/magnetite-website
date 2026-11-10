@@ -1,0 +1,93 @@
+---
+import Logo from "./Logo.astro";
+import { docs, repo } from "../site";
+import { localizePath, useTranslations, type Lang } from "../i18n/ui";
+
+type Props = { lang: Lang };
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const home = localizePath(lang, "/");
+const columns = [
+  {
+    title: t("footer.product"),
+    links: [
+      { href: `${home}#features`, label: t("footer.features") },
+      { href: localizePath(lang, "/download/"), label: t("footer.download") },
+      { href: `${home}#faq`, label: t("footer.faq") },
+    ],
+  },
+  {
+    title: t("footer.project"),
+    links: [
+      { href: repo.url, label: t("footer.source") },
+      { href: docs.contributing, label: t("footer.contributing") },
+      { href: localizePath(lang, "/security/"), label: t("footer.security") },
+      { href: localizePath(lang, "/license/"), label: t("footer.license") },
+      { href: docs.notices, label: t("footer.notices") },
+    ],
+  },
+  {
+    title: t("footer.legal"),
+    links: [
+      { href: localizePath(lang, "/privacy/"), label: t("footer.privacy") },
+      { href: localizePath(lang, "/imprint/"), label: t("footer.imprint") },
+    ],
+  },
+];
+---
+
+<footer class="site-footer relative mt-16 overflow-hidden border-t border-line sm:mt-24">
+  <div class="relative mx-auto grid max-w-7xl gap-10 px-5 pt-16 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <div class="max-w-xs">
+      <a href={home} class="inline-flex items-center gap-2.5 rounded-md">
+        <Logo id="footer" size={28} motion="hover" />
+        <span class="font-display text-lg font-semibold">Magnetite</span>
+      </a>
+      <p class="mt-4 text-sm leading-relaxed text-muted">{t("footer.tagline")}</p>
+    </div>
+    {
+      columns.map((c) => (
+        <nav aria-label={c.title}>
+          <h2 class="font-mono text-xs tracking-[0.14em] text-accent uppercase">{c.title}</h2>
+          <ul class="mt-4 space-y-2.5 text-sm text-secondary">
+            {c.links.map((l) => (
+              <li>
+                <a href={l.href} class="rounded-sm transition-colors hover:text-fg">
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))
+    }
+  </div>
+
+  <p class="wordmark font-display text-brass" aria-hidden="true">Magnetite</p>
+
+  <div class="relative border-t border-line">
+    <div class="mx-auto flex max-w-7xl flex-col gap-1 px-5 py-6 text-xs leading-relaxed text-muted sm:flex-row sm:justify-between sm:gap-6">
+      <p>{t("footer.copyright")}</p>
+      <p>{t("footer.independent")}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background:
+      radial-gradient(60% 80% at 50% 100%, rgb(215 166 101 / 0.1), transparent 70%),
+      var(--color-ink);
+  }
+  .wordmark {
+    margin: 3rem 0 -0.12em;
+    font-size: clamp(4.5rem, 19vw, 17rem);
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 0.85;
+    text-align: center;
+    opacity: 0.9;
+    user-select: none;
+    mask: linear-gradient(#000 35%, transparent 95%);
+  }
+</style>

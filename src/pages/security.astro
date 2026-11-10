@@ -1,0 +1,69 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHeader from "../components/PageHeader.astro";
+import { SECURITY_CONTACT, docs } from "../site";
+---
+
+<Base title="Security" description="How to report a vulnerability in Magnetite, and how Magnetite protects you.">
+  <PageHeader
+    eyebrow="Project"
+    title="Security"
+    lead="Magnetite has no releases yet. Security fixes land on the main branch."
+  />
+  <article class="mx-auto max-w-3xl px-5 pt-4">
+
+    <div class="prose mt-8">
+      <h2 id="report">Report a vulnerability</h2>
+      <p>
+        Please report it privately, not in a public issue:
+        <strong><a href={`mailto:${SECURITY_CONTACT}`}>{SECURITY_CONTACT}</a></strong>
+      </p>
+      <p>
+        Include the affected part (browser, sync server, sync protocol, importer), the commit or version you tested, steps
+        to reproduce, and the impact. We will acknowledge your report, keep you updated, and credit you in the fix unless you
+        prefer not to be named. Please give us reasonable time to fix the issue before you disclose it.
+      </p>
+
+      <h3>Scope</h3>
+      <ul>
+        <li>
+          In scope: Magnetite’s own code: the app, the <code>magnetite-sync</code> server, its protocol and cryptography,
+          and the importer for other browsers’ data.
+        </li>
+        <li>
+          Bugs in Chromium or the Chromium Embedded Framework: report them upstream to
+          <a href="https://issues.chromium.org">Chromium</a> or <a href="https://github.com/chromiumembedded/cef/issues">CEF</a>,
+          and tell us if a version Magnetite ships is affected.
+        </li>
+        <li>Out of scope: issues that need a development-only switch.</li>
+      </ul>
+
+      <h2 id="protection">How Magnetite protects you</h2>
+      <ul>
+        <li>Chromium’s sandbox, site isolation and permission prompts stay on.</li>
+        <li>
+          Magnetite’s own interface runs on a separate origin that web pages cannot frame, link to or load, so a page cannot
+          reach your settings or your tabs.
+        </li>
+        <li>
+          Where an address comes from decides what may open: pages cannot open Magnetite’s own pages or local files, and
+          <code>javascript:</code> and <code>data:</code> addresses never open as tabs.
+        </li>
+        <li>
+          A tab a page opens runs in that page’s profile, so a page in a private or separate profile never gets your main
+          cookies.
+        </li>
+        <li>
+          The data folder is readable by your user only. Logs never contain addresses, page titles, tokens or sync words.
+        </li>
+        <li>
+          Sync uses HTTPS and signed requests. A malicious sync server cannot read, forge or roll back your data.
+        </li>
+      </ul>
+      <p>
+        The full rules: <a href={docs.securityRules}>docs/design/security.md</a>. The policy above:
+        <a href={docs.security}>SECURITY.md</a>.
+      </p>
+    </div>
+  </article>
+</Base>
