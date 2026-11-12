@@ -6,7 +6,7 @@ import FieldCanvas from "../components/FieldCanvas.astro";
 import SyncDiagram from "../components/SyncDiagram.astro";
 import Terminal from "../components/Terminal.astro";
 import type { SceneId } from "../demo/api";
-import { ARC_SHUTDOWN, LATEST_VERSION, PLATFORMS, docs, repo } from "../site";
+import { ARC_SHUTDOWN, BREW_INSTALL, LATEST_VERSION, PLATFORMS, docs, repo } from "../site";
 
 const ticker = [
   "Sidebar tabs",
@@ -680,6 +680,8 @@ const faq: { q: string; a: string }[] = [
             <a href="/download/" class="btn btn-primary" data-magnetic="0.25"><Icon name="download" size={17} />Download</a>
             <a href={docs.building} class="btn btn-secondary" data-magnetic="0.25">Build from source</a>
           </div>
+          <p class="mt-8 text-sm text-secondary">Or install with Homebrew on macOS:</p>
+          <code class="code-block mt-3">{BREW_INSTALL}</code>
         </div>
         <ul class="space-y-2.5 text-sm">
           {
