@@ -8,6 +8,10 @@ import Terminal from "../components/Terminal.astro";
 import type { SceneId } from "../demo/api";
 import { ARC_SHUTDOWN, BREW_INSTALL, LATEST_VERSION, PLATFORMS, docs, repo } from "../site";
 
+/** The systems with a package in the releases, and those without one: "macOS and Linux". */
+const systems = (ready: boolean) =>
+  [...new Set(PLATFORMS.filter((p) => p.ready === ready).map((p) => p.os))].join(" and ");
+
 const ticker = [
   "Sidebar tabs",
   "Spaces",
@@ -333,9 +337,9 @@ const faq: { q: string; a: string }[] = [
         <p class="load mt-8 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs tracking-wide text-muted d-4">
           <span class="text-accent">Fe₃O₄</span>
           <span aria-hidden="true">·</span>
-          <span>Runs on macOS with Apple silicon, built from source</span>
+          <span>For {systems(true)}</span>
           <span aria-hidden="true">·</span>
-          <span>Linux and Windows in preparation</span>
+          <span>{systems(false)} in preparation</span>
         </p>
       </div>
 
