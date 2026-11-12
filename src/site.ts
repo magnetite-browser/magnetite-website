@@ -11,7 +11,7 @@ export const DEFAULT_BRANCH = "main";
  * (e.g. "0.1.0"). While null, the download page says "Coming soon"; once set,
  * the buttons link straight to the release assets.
  */
-export const LATEST_VERSION: string | null = null;
+export const LATEST_VERSION: string | null = "0.0.1";
 
 /** Where to report vulnerabilities; same value as in SECURITY.md. */
 export const SECURITY_CONTACT = "security@magnetitebrowser.org";
@@ -112,7 +112,7 @@ export type Platform = {
   asset: (version: string) => string;
   /** What works today, in one short line. */
   status: string;
-  /** Runs today; lights the status dot on the home page. */
+  /** Releases carry a package for it; lights the status dot on the home page. */
   ready: boolean;
   requirements: string;
 };
@@ -123,7 +123,7 @@ export const PLATFORMS: readonly Platform[] = [
     os: "macOS",
     arch: "Apple silicon",
     asset: (v) => `Magnetite-${v}-macos-aarch64.zip`,
-    status: "Build from source",
+    status: "Signed and notarized",
     ready: true,
     requirements: "macOS 13 Ventura or later",
   },
@@ -132,8 +132,8 @@ export const PLATFORMS: readonly Platform[] = [
     os: "macOS",
     arch: "Intel",
     asset: (v) => `Magnetite-${v}-macos-x86_64.zip`,
-    status: "In preparation",
-    ready: false,
+    status: "Experimental",
+    ready: true,
     requirements: "macOS 13 Ventura or later",
   },
   {
@@ -141,8 +141,8 @@ export const PLATFORMS: readonly Platform[] = [
     os: "Linux",
     arch: "x86_64",
     asset: (v) => `magnetite-${v}-linux-x86_64.tar.gz`,
-    status: "In preparation",
-    ready: false,
+    status: "Experimental",
+    ready: true,
     requirements: "GTK 3, NSS, ALSA, GBM and the usual Chromium libraries",
   },
   {
@@ -150,8 +150,8 @@ export const PLATFORMS: readonly Platform[] = [
     os: "Linux",
     arch: "ARM64",
     asset: (v) => `magnetite-${v}-linux-aarch64.tar.gz`,
-    status: "In preparation",
-    ready: false,
+    status: "Experimental",
+    ready: true,
     requirements: "GTK 3, NSS, ALSA, GBM and the usual Chromium libraries",
   },
   {
@@ -165,6 +165,6 @@ export const PLATFORMS: readonly Platform[] = [
   },
 ];
 
-/** Direct link to a platform's file in the latest release, or null before the first release. */
+/** Direct link to a platform's file in the latest release, or null while there is none for it. */
 export const downloadUrl = (p: Platform): string | null =>
-  LATEST_VERSION === null ? null : `${repo.releases}/download/v${LATEST_VERSION}/${p.asset(LATEST_VERSION)}`;
+  LATEST_VERSION === null || !p.ready ? null : `${repo.releases}/download/v${LATEST_VERSION}/${p.asset(LATEST_VERSION)}`;

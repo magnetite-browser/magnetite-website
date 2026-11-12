@@ -6,7 +6,11 @@ import FieldCanvas from "../components/FieldCanvas.astro";
 import SyncDiagram from "../components/SyncDiagram.astro";
 import Terminal from "../components/Terminal.astro";
 import type { SceneId } from "../demo/api";
-import { ARC_SHUTDOWN, PLATFORMS, docs, repo } from "../site";
+import { ARC_SHUTDOWN, BREW_INSTALL, LATEST_VERSION, PLATFORMS, docs, repo } from "../site";
+
+/** The systems with a package in the releases, and those without one: "macOS and Linux". */
+const systems = (ready: boolean) =>
+  [...new Set(PLATFORMS.filter((p) => p.ready === ready).map((p) => p.os))].join(" and ");
 
 const ticker = [
   "Sidebar tabs",
@@ -269,7 +273,7 @@ const faq: { q: string; a: string }[] = [
   },
   {
     q: "Which platforms?",
-    a: "Today Magnetite runs on macOS with Apple silicon, built from source. Builds for Intel Macs, Linux (x86_64 and ARM64) and Windows (x86_64) are in preparation and not released yet.",
+    a: "macOS 13 or later and Linux (x86_64 and ARM64). Magnetite is developed and used daily on Macs with Apple silicon; the packages for Intel Macs and Linux are experimental. Windows (x86_64) is in preparation.",
   },
   {
     q: "Is it free?",
@@ -289,7 +293,7 @@ const faq: { q: string; a: string }[] = [
   },
   {
     q: "Is it ready for daily use?",
-    a: "Not for everyone yet. Things can break, including the format of the data on disk. Some sites that only serve H.264 video or AAC audio do not play yet. If you try it, keep your old browser around and tell us what breaks.",
+    a: "Not for everyone yet. Things can break, including the format of the data on disk. On Intel Macs and Linux, sites that only serve H.264 video or AAC audio do not play yet. If you try it, keep your old browser around and tell us what breaks.",
   },
 ];
 ---
@@ -323,7 +327,7 @@ const faq: { q: string; a: string }[] = [
         <div class="load mt-10 flex flex-wrap items-center gap-3 d-3">
           <a href="/download/" class="btn btn-primary h-13 px-7 text-base" data-magnetic="0.25">
             <Icon name="download" size={18} />
-            Download <span class="font-medium opacity-70">· coming soon</span>
+            Download
           </a>
           <a href={repo.url} class="btn btn-secondary h-13 px-7 text-base" data-magnetic="0.25">
             <Icon name="code" size={18} />
@@ -333,9 +337,9 @@ const faq: { q: string; a: string }[] = [
         <p class="load mt-8 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs tracking-wide text-muted d-4">
           <span class="text-accent">Fe₃O₄</span>
           <span aria-hidden="true">·</span>
-          <span>Runs on macOS with Apple silicon, built from source</span>
+          <span>For {systems(true)}</span>
           <span aria-hidden="true">·</span>
-          <span>Linux and Windows in preparation</span>
+          <span>{systems(false)} in preparation</span>
         </p>
       </div>
 
@@ -672,15 +676,16 @@ const faq: { q: string; a: string }[] = [
       <div class="relative grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:items-center">
         <div>
           <p class="eyebrow">Download</p>
-          <h2 id="download-title" class="section-title mt-5 font-display">Signed builds are coming soon.</h2>
+          <h2 id="download-title" class="section-title mt-5 font-display">Version {LATEST_VERSION} is out.</h2>
           <p class="mt-5 max-w-lg text-lg leading-relaxed text-secondary">
-            There is no release yet. Downloads will appear here and on GitHub Releases, macOS first. Until then you can build
-            Magnetite from source on a Mac with Apple silicon.
+            Signed packages for macOS and Linux, straight from GitHub Releases. Magnetite updates itself from there.
           </p>
           <div class="mt-9 flex flex-wrap gap-3">
-            <a href="/download/" class="btn btn-primary" data-magnetic="0.25">Download options<Icon name="arrowRight" size={17} /></a>
+            <a href="/download/" class="btn btn-primary" data-magnetic="0.25"><Icon name="download" size={17} />Download</a>
             <a href={docs.building} class="btn btn-secondary" data-magnetic="0.25">Build from source</a>
           </div>
+          <p class="mt-8 text-sm text-secondary">Or install with Homebrew on macOS:</p>
+          <code class="code-block mt-3">{BREW_INSTALL}</code>
         </div>
         <ul class="space-y-2.5 text-sm">
           {

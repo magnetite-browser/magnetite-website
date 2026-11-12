@@ -13,7 +13,7 @@ const groups = (["macOS", "Linux", "Windows"] as const).map((os) => ({
 
 <Base
   title="Download"
-  description="Download Magnetite for macOS, Linux and Windows. Signed releases are coming soon; until then, build it from source."
+  description="Download Magnetite for macOS and Linux: signed releases, also through Homebrew. Windows is in preparation."
 >
   <PageHeader eyebrow="Download" title='Get <span class="text-brass">Magnetite</span>' />
   <div class="mx-auto max-w-4xl px-5 pt-12">
@@ -21,8 +21,9 @@ const groups = (["macOS", "Linux", "Windows"] as const).map((os) => ({
     {
       released ? (
         <p class="mt-5 text-lg leading-relaxed text-secondary">
-          The latest release is version {LATEST_VERSION}. Expect breaking changes, including to the data on disk. All
-          files and release notes are on <a href={repo.releases} class="link">GitHub Releases</a>.
+          The latest release is version {LATEST_VERSION}. Magnetite is developed and used daily on macOS with Apple
+          silicon; the packages for Intel Macs and Linux are experimental. Expect breaking changes, including to the data
+          on disk. All files, checksums and release notes are on <a href={repo.releases} class="link">GitHub Releases</a>.
         </p>
       ) : (
         <div class="glass flex gap-4 rounded-2xl border-accent/40! p-6">
@@ -66,7 +67,9 @@ const groups = (["macOS", "Linux", "Windows"] as const).map((os) => ({
                         ) : (
                           <span class="btn btn-soon">Coming soon</span>
                         )}
-                        <code class="font-mono text-xs break-all text-muted">{p.asset(LATEST_VERSION ?? "<version>")}</code>
+                        <code class="font-mono text-xs break-all text-muted">
+                          {p.asset(url && LATEST_VERSION ? LATEST_VERSION : "<version>")}
+                        </code>
                       </div>
                     </li>
                   );
@@ -81,7 +84,11 @@ const groups = (["macOS", "Linux", "Windows"] as const).map((os) => ({
     <section aria-labelledby="brew-title" class="mt-16">
       <h2 id="brew-title" class="font-display text-3xl font-semibold tracking-[-0.02em]">Homebrew</h2>
       <p class="mt-3 leading-relaxed text-secondary">
-        On macOS, Magnetite will be available from its own Homebrew tap{released ? "" : " once the first release is out"}:
+        {
+          released
+            ? "On macOS, install Magnetite with Homebrew, from the project’s own tap:"
+            : "On macOS, Magnetite will be available from its own Homebrew tap once the first release is out:"
+        }
       </p>
       <code class="code-block mt-4">{BREW_INSTALL}</code>
     </section>
@@ -117,7 +124,7 @@ const groups = (["macOS", "Linux", "Windows"] as const).map((os) => ({
       <div class="prose mt-3">
         <ul>
           <li>Expect breaking changes, including to the data Magnetite keeps on disk.</li>
-          <li>Some sites that only serve H.264 video or AAC audio do not play yet.</li>
+          <li>On Intel Macs and Linux, sites that only serve H.264 video or AAC audio do not play yet.</li>
           <li>Not there yet: several main windows, a small window for links from other apps, notes.</li>
         </ul>
       </div>
@@ -128,7 +135,7 @@ const groups = (["macOS", "Linux", "Windows"] as const).map((os) => ({
       <div class="prose mt-3">
         <p>
           Magnetite is free software under the <a href="/license/">European Union Public Licence v1.2</a>. Every package
-          will contain the licence and the third-party notices; the source code is on <a href={repo.url}>GitHub</a>. Who
+          contains the licence and the third-party notices; the source code is on <a href={repo.url}>GitHub</a>. Who
           publishes it: see the <a href="/imprint/">imprint</a>.
         </p>
       </div>
