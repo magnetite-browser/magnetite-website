@@ -11,7 +11,7 @@ export const DEFAULT_BRANCH = "main";
  * (e.g. "0.1.0"). While null, the download page says "Coming soon"; once set,
  * the buttons link straight to the release assets.
  */
-export const LATEST_VERSION: string | null = "0.0.1";
+export const LATEST_VERSION: string | null = "0.0.2";
 
 /** Where to report vulnerabilities; same value as in SECURITY.md. */
 export const SECURITY_CONTACT = "security@magnetitebrowser.org";
@@ -101,6 +101,17 @@ export const docs = {
 
 export const EUPL_TEXTS = "https://interoperable-europe.ec.europa.eu/collection/eupl/eupl-text-eupl-12";
 
+/**
+ * How far along Magnetite is: the badge on the download card and the
+ * sentences under its title.
+ */
+export const STAGE = {
+  name: "Beta",
+  expect:
+    "Magnetite is in beta: expect rough edges and breaking changes. It is used daily on macOS with Apple silicon; the other packages are less tested.",
+  updates: "Magnetite updates itself from GitHub Releases.",
+} as const;
+
 /** Homebrew cask from the project's own tap (magnetite-browser/homebrew-magnetite). */
 export const BREW_INSTALL = `brew install --cask ${owner}/magnetite/magnetite`;
 
@@ -123,7 +134,7 @@ export const PLATFORMS: readonly Platform[] = [
     os: "macOS",
     arch: "Apple silicon",
     asset: (v) => `Magnetite-${v}-macos-aarch64.zip`,
-    status: "Signed and notarized",
+    status: "Available",
     ready: true,
     requirements: "macOS 13 Ventura or later",
   },
@@ -132,7 +143,7 @@ export const PLATFORMS: readonly Platform[] = [
     os: "macOS",
     arch: "Intel",
     asset: (v) => `Magnetite-${v}-macos-x86_64.zip`,
-    status: "Experimental",
+    status: "Available",
     ready: true,
     requirements: "macOS 13 Ventura or later",
   },
@@ -141,7 +152,7 @@ export const PLATFORMS: readonly Platform[] = [
     os: "Linux",
     arch: "x86_64",
     asset: (v) => `magnetite-${v}-linux-x86_64.tar.gz`,
-    status: "Experimental",
+    status: "Available",
     ready: true,
     requirements: "GTK 3, NSS, ALSA, GBM and the usual Chromium libraries",
   },
@@ -150,7 +161,7 @@ export const PLATFORMS: readonly Platform[] = [
     os: "Linux",
     arch: "ARM64",
     asset: (v) => `magnetite-${v}-linux-aarch64.tar.gz`,
-    status: "Experimental",
+    status: "Available",
     ready: true,
     requirements: "GTK 3, NSS, ALSA, GBM and the usual Chromium libraries",
   },
