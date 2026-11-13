@@ -10,6 +10,8 @@ on:
     - cron: "17 * * * *"
   workflow_dispatch:
 
+# The one workflow here with write access: it pushes a branch, opens its pull
+# request and turns on auto-merge. `main` itself stays behind the ruleset.
 permissions:
   contents: write
   pull-requests: write

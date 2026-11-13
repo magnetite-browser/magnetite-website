@@ -86,7 +86,8 @@ reviews:
       instructions: |
         Scripts are Node without dependencies, POSIX sh or Swift (macOS only, for pictures
         that are committed). Workflows pin every action to a full commit SHA and ask for no
-        more than read access.
+        more than read access. The one exception is follow-release.yml, which opens and
+        merges the pull request that sets the latest version and needs write access for it.
     - path: "{Dockerfile,Caddyfile}"
       instructions: |
         The image the deployment runs. Base images are pinned by digest. The container runs
