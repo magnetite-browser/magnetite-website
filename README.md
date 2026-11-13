@@ -194,7 +194,7 @@ made once.
 | Constant | What | Used on |
 |---|---|---|
 | `GITHUB_REPO` | `"owner/repo"` of the browser on GitHub. Every GitHub link, the Releases links and the Homebrew tap (`brew install --cask <owner>/magnetite/magnetite`) derive from it. | everywhere |
-| `LATEST_VERSION` | `null` until the first signed release; then e.g. `"0.1.0"`. The download buttons switch from "Coming soon" to direct links `…/releases/download/v<version>/<asset>`. | download page |
+| `LATEST_VERSION` | `null` until the first signed release; then e.g. `"0.1.0"`. The download buttons switch from "Coming soon" to direct links `…/releases/download/v<version>/<asset>`. Set by itself: the workflow "Follow the browser's release" looks once an hour for the latest published release and merges a pull request with the new value (`scripts/follow-release.sh`). | download page |
 | `SECURITY_CONTACT` | Where to report vulnerabilities; same value as in the browser's `SECURITY.md`. | security page |
 | `LEGAL` | The company that provides the site and publishes Magnetite, as in its own imprint. | imprint, privacy policy |
 | `HOSTING` | Where the site runs and how long server logs are kept. | privacy policy |
