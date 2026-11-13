@@ -1,0 +1,33 @@
+name: Follow the browser's release
+
+# The download links and the version shown come from LATEST_VERSION in
+# src/site.ts. Once an hour this looks for the browser's latest published
+# release and, when it is another version, opens a pull request that sets
+# it and merges by itself once "Build and check" passed
+# (scripts/follow-release.sh).
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+# The one workflow here with write access: it pushes a branch, opens its pull
+# request and turns on auto-merge. `main` itself stays behind the ruleset.
+permissions:
+  contents: write
+  pull-requests: write
+  # To start CI on the branch: a pull request opened by a workflow starts none.
+  actions: write
+
+concurrency:
+  group: follow-release
+
+jobs:
+  follow:
+    name: Set the latest version
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Open the pull request if there is a new release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: scripts/follow-release.sh

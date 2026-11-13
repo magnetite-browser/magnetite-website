@@ -9,7 +9,8 @@ export const DEFAULT_BRANCH = "main";
 /**
  * Version of the latest signed release on GitHub Releases, without the "v"
  * (e.g. "0.1.0"). While null, the download page says "Coming soon"; once set,
- * the buttons link straight to the release assets.
+ * the buttons link straight to the release assets. Kept current by
+ * scripts/follow-release.sh, which rewrites this line: keep its form.
  */
 export const LATEST_VERSION: string | null = "0.0.2";
 
