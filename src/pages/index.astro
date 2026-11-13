@@ -6,7 +6,7 @@ import FieldCanvas from "../components/FieldCanvas.astro";
 import SyncDiagram from "../components/SyncDiagram.astro";
 import Terminal from "../components/Terminal.astro";
 import type { SceneId } from "../demo/api";
-import { ARC_SHUTDOWN, BREW_INSTALL, LATEST_VERSION, PLATFORMS, docs, downloadUrl, repo } from "../site";
+import { ARC_SHUTDOWN, BREW_INSTALL, LATEST_VERSION, PLATFORMS, STAGE, docs, downloadUrl, repo } from "../site";
 
 /** The systems with a package in the releases, and those without one: "macOS and Linux". */
 const systems = (ready: boolean) =>
@@ -677,12 +677,12 @@ const faq: { q: string; a: string }[] = [
         <div>
           <p class="flex items-center gap-3">
             <span class="eyebrow">Download</span>
-            <span class="beta">Beta</span>
+            <span class="beta">{STAGE.name}</span>
           </p>
           <h2 id="download-title" class="section-title mt-5 font-display">Version {LATEST_VERSION} is out.</h2>
           <p class="mt-5 max-w-lg text-lg leading-relaxed text-secondary">
-            Magnetite is in beta: expect rough edges and breaking changes. It is used daily on macOS with Apple silicon;
-            the other packages are less tested. Magnetite updates itself from GitHub Releases.
+            {STAGE.expect}
+            {STAGE.updates}
           </p>
           <div class="mt-9 flex flex-wrap gap-3">
             <a href="/download/" class="btn btn-primary" data-magnetic="0.25"><Icon name="download" size={17} />Download</a>

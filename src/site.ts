@@ -101,6 +101,17 @@ export const docs = {
 
 export const EUPL_TEXTS = "https://interoperable-europe.ec.europa.eu/collection/eupl/eupl-text-eupl-12";
 
+/**
+ * How far along Magnetite is: the badge on the download card and the
+ * sentences under its title.
+ */
+export const STAGE = {
+  name: "Beta",
+  expect:
+    "Magnetite is in beta: expect rough edges and breaking changes. It is used daily on macOS with Apple silicon; the other packages are less tested.",
+  updates: "Magnetite updates itself from GitHub Releases.",
+} as const;
+
 /** Homebrew cask from the project's own tap (magnetite-browser/homebrew-magnetite). */
 export const BREW_INSTALL = `brew install --cask ${owner}/magnetite/magnetite`;
 
