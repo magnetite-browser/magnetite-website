@@ -47,8 +47,9 @@ if [ -z "$(gh pr list --head "$branch" --state open --json number --jq '.[].numb
   gh pr create --head "$branch" --title "$title" \
     --body "The browser's latest release is $version. Opened by the \"Follow the browser's release\" workflow; merges by itself once the check passed."
 fi
-# A pull request opened by a workflow starts no CI: start it, once.
-if [ -z "$(gh api "repos/{owner}/{repo}/commits/$head/check-runs" --jq '.check_runs[].id')" ]; then
+# A pull request opened by a workflow starts no CI: start it, once. Only a
+# run of ci.yml counts; other apps put check runs on the commit as well.
+if [ -z "$(gh api "repos/{owner}/{repo}/actions/workflows/ci.yml/runs?head_sha=$head" --jq '.workflow_runs[].id')" ]; then
   gh workflow run ci.yml --ref "$branch"
 fi
 gh pr merge "$branch" --auto --squash
