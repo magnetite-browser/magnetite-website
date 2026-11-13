@@ -6,7 +6,7 @@ import FieldCanvas from "../components/FieldCanvas.astro";
 import SyncDiagram from "../components/SyncDiagram.astro";
 import Terminal from "../components/Terminal.astro";
 import type { SceneId } from "../demo/api";
-import { ARC_SHUTDOWN, BREW_INSTALL, LATEST_VERSION, PLATFORMS, docs, repo } from "../site";
+import { ARC_SHUTDOWN, BREW_INSTALL, LATEST_VERSION, PLATFORMS, docs, downloadUrl, repo } from "../site";
 
 /** The systems with a package in the releases, and those without one: "macOS and Linux". */
 const systems = (ready: boolean) =>
@@ -675,10 +675,14 @@ const faq: { q: string; a: string }[] = [
       <div class="download-glow" aria-hidden="true"></div>
       <div class="relative grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:items-center">
         <div>
-          <p class="eyebrow">Download</p>
+          <p class="flex items-center gap-3">
+            <span class="eyebrow">Download</span>
+            <span class="beta">Beta</span>
+          </p>
           <h2 id="download-title" class="section-title mt-5 font-display">Version {LATEST_VERSION} is out.</h2>
           <p class="mt-5 max-w-lg text-lg leading-relaxed text-secondary">
-            Signed packages for macOS and Linux, straight from GitHub Releases. Magnetite updates itself from there.
+            Magnetite is in beta: expect rough edges and breaking changes. It is used daily on macOS with Apple silicon;
+            the other packages are less tested. Magnetite updates itself from GitHub Releases.
           </p>
           <div class="mt-9 flex flex-wrap gap-3">
             <a href="/download/" class="btn btn-primary" data-magnetic="0.25"><Icon name="download" size={17} />Download</a>
@@ -690,11 +694,25 @@ const faq: { q: string; a: string }[] = [
         <ul class="space-y-2.5 text-sm">
           {
             PLATFORMS.map((p, i) => (
-              <li class:list={["platform", `d-${i}`]} data-reveal>
-                <span class="font-medium">
-                  {p.os} <span class="text-muted">· {p.arch}</span>
-                </span>
-                <span class:list={["status", { ready: p.ready }]}>{p.status}</span>
+              <li class:list={[`d-${i}`]} data-reveal>
+                {downloadUrl(p) ? (
+                  <a href={downloadUrl(p)} class="platform">
+                    <span class="font-medium">
+                      {p.os} <span class="text-muted">· {p.arch}</span>
+                    </span>
+                    <span class="status ready">
+                      {p.status}
+                      <Icon name="download" size={15} />
+                    </span>
+                  </a>
+                ) : (
+                  <div class="platform">
+                    <span class="font-medium">
+                      {p.os} <span class="text-muted">· {p.arch}</span>
+                    </span>
+                    <span class="status">{p.status}</span>
+                  </div>
+                )}
               </li>
             ))
           }
@@ -1477,6 +1495,24 @@ const faq: { q: string; a: string }[] = [
     border: 1px solid var(--color-line);
     border-radius: 14px;
     background: rgb(12 12 14 / 0.45);
+    transition:
+      border-color 200ms,
+      background-color 200ms;
+  }
+  a.platform:hover {
+    border-color: rgb(125 220 154 / 0.45);
+    background: rgb(125 220 154 / 0.06);
+  }
+  .beta {
+    padding: 0.15rem 0.6rem;
+    border: 1px solid rgb(215 166 101 / 0.45);
+    border-radius: 999px;
+    background: var(--color-accent-soft);
+    color: var(--color-champagne);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
   .status {
     display: inline-flex;
@@ -1494,11 +1530,19 @@ const faq: { q: string; a: string }[] = [
     background: #55555c;
   }
   .status.ready {
-    color: var(--color-champagne);
+    color: var(--color-ok);
   }
   .status.ready::before {
-    background: var(--color-accent);
-    animation: pulse-ring 1.8s ease-out infinite;
+    background: var(--color-ok);
+    animation: pulse-ok 1.8s ease-out infinite;
+  }
+  @keyframes pulse-ok {
+    0% {
+      box-shadow: 0 0 0 0 rgb(125 220 154 / 0.6);
+    }
+    100% {
+      box-shadow: 0 0 0 10px rgb(125 220 154 / 0);
+    }
   }
 
   /* FAQ */
