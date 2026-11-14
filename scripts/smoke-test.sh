@@ -31,7 +31,7 @@ fail() {
 status() { curl --silent --output /dev/null --max-time 5 --write-out '%{http_code}' "$base$1"; }
 header() { curl --silent --output /dev/null --max-time 5 --dump-header - "$base$1" | tr -d '\r' | awk -v name="$2" 'tolower($1) == tolower(name) ":" { sub(/^[^:]*: */, ""); print }'; }
 
-for page in / /download/ /privacy/ /imprint/ /license/ /security/ /demo/ /favicons/roadmap.example.org.png; do
+for page in / /download/ /privacy/ /imprint/ /license/ /security/ /demo/ /favicons/roadmap.example.org.png /robots.txt /sitemap-index.xml /sitemap-0.xml; do
   [ "$(status "$page")" = 200 ] || fail "$page did not answer 200"
 done
 [ "$(status /no-such-page/)" = 404 ] || fail "an unknown address did not answer 404"
