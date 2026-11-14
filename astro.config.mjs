@@ -1,6 +1,7 @@
 // Static site. See README.md.
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
+import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
 // The live demo (src/demo/) runs the browser's own sidebar: app/ is a copy of its source (app/README.md).
@@ -9,6 +10,9 @@ const appUi = fileURLToPath(new URL("./app", import.meta.url));
 export default defineConfig({
   site: "https://magnetitebrowser.org",
   trailingSlash: "always",
+  // /sitemap-index.xml, which robots.txt names. It lists the pages search engines may index:
+  // the demo is only the home page's frame and says noindex, the 404 page is left out by itself.
+  integrations: [sitemap({ filter: (page) => !page.endsWith("/demo/") })],
   build: {
     format: "directory",
     // CSS goes to files under /_astro/, never inline, so the CSP can stay at style-src 'self'.

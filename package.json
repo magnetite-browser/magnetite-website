@@ -16,6 +16,7 @@
     "check:external": "node scripts/check-links.mjs --external"
   },
   "dependencies": {
+    "@astrojs/sitemap": "3.7.4",
     "@fontsource-variable/bricolage-grotesque": "5.3.0",
     "@tailwindcss/vite": "4.3.5",
     "astro": "7.4.7",
