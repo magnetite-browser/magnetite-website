@@ -12,7 +12,7 @@ export const DEFAULT_BRANCH = "main";
  * the buttons link straight to the release assets. Kept current by
  * scripts/follow-release.sh, which rewrites this line: keep its form.
  */
-export const LATEST_VERSION: string | null = "0.0.2";
+export const LATEST_VERSION: string | null = "0.0.3";
 
 /** Where to report vulnerabilities; same value as in SECURITY.md. */
 export const SECURITY_CONTACT = "security@magnetitebrowser.org";
