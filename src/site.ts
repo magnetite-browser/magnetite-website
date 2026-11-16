@@ -171,7 +171,7 @@ export const PLATFORMS: readonly Platform[] = [
     os: "Windows",
     arch: "x86_64",
     asset: (v) => `magnetite-${v}-windows-x86_64.zip`,
-    status: "In preparation",
+    status: "Coming soon",
     ready: false,
     requirements: "64-bit Windows",
   },
