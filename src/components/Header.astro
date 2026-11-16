@@ -2,6 +2,7 @@
 import Icon from "./Icon.astro";
 import Logo from "./Logo.astro";
 import { repo } from "../site";
+import { stars } from "../stars";
 import { localizePath, useTranslations, type Lang } from "../i18n/ui";
 
 type Props = { lang: Lang };
@@ -15,6 +16,9 @@ const links = [
   { href: localizePath(lang, "/download/"), label: t("nav.download") },
 ];
 const path = Astro.url.pathname;
+// null while GitHub has not answered: the button then shows no count.
+const starCount = await stars();
+const compact = new Intl.NumberFormat(lang, { notation: "compact", maximumFractionDigits: 1 });
 ---
 
 <header class="site-header sticky top-0 z-30">
@@ -42,6 +46,15 @@ const path = Astro.url.pathname;
     <a href={repo.url} class="btn btn-secondary ml-auto h-9 px-4 text-sm sm:ml-0" data-magnetic="0.2">
       <Icon name="code" size={16} />
       <span>{t("nav.source")}</span>
+      {
+        starCount !== null && (
+          <span class="stars hidden items-center sm:inline-flex">
+            <Icon name="star" size={14} />
+            {compact.format(starCount)}
+            <span class="sr-only">{t("nav.stars")}</span>
+          </span>
+        )
+      }
     </a>
   </div>
 </header>
@@ -52,6 +65,16 @@ const path = Astro.url.pathname;
     background: rgb(12 12 14 / 0.9);
     -webkit-backdrop-filter: blur(16px) saturate(150%);
     backdrop-filter: blur(16px) saturate(150%);
+  }
+  /* The repository's GitHub stars, set off inside the source code button. Not on phones,
+     where the button would no longer fit beside the name. */
+  .stars {
+    gap: 5px;
+    margin-left: 4px;
+    padding-left: 12px;
+    border-left: 1px solid var(--color-line-strong);
+    color: var(--color-secondary);
+    font-variant-numeric: tabular-nums;
   }
   .nav-link {
     position: relative;

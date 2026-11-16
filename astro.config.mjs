@@ -1,6 +1,8 @@
-// Static site. See README.md.
+// Pages are rendered on the server for every request (the header shows the
+// repository's current GitHub stars); server.mjs runs the build. See README.md.
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
+import node from "@astrojs/node";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -10,6 +12,9 @@ const appUi = fileURLToPath(new URL("./app", import.meta.url));
 export default defineConfig({
   site: "https://magnetitebrowser.org",
   trailingSlash: "always",
+  output: "server",
+  // "standalone" because its handler also serves the built files; server.mjs wraps it and does the listening.
+  adapter: node({ mode: "standalone" }),
   // /sitemap-index.xml, which robots.txt names. It lists the pages search engines may index:
   // the demo is only the home page's frame and says noindex, the 404 page is left out by itself.
   integrations: [sitemap({ filter: (page) => !page.endsWith("/demo/") })],

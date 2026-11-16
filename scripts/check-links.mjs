@@ -1,16 +1,18 @@
-// Checks the built site in dist/:
-// - every internal link and #fragment points at something that exists,
-// - nothing loads from another origin (scripts, styles, images, fonts, frames)
-//   except the visitor statistics script, and no script is inline,
-// - every page carries the Content-Security-Policy meta tag,
-// - links to files in our GitHub repositories name files that exist in their
-//   checkouts, when those are checked out next to this one (folders
-//   `magnetite` and `magnetite-sync`).
+// Checks the built site: starts its server (server.mjs) on a free local port,
+// reads every page reachable from the home page, the live demo and the 404
+// page, and fails if
+// - an internal link or #fragment points at something that does not exist,
+// - a page loads anything from another origin (scripts, styles, images,
+//   fonts, frames) except the visitor statistics script, or has an inline script,
+// - a page lacks the Content-Security-Policy meta tag,
+// - a link to a file in our GitHub repositories names a file that does not
+//   exist in its checkout, when those are checked out next to this one
+//   (folders `magnetite` and `magnetite-sync`).
 // `--external` also requests every external link once (needs network).
-import { readFile, readdir, stat } from "node:fs/promises";
-import { join, relative } from "node:path";
+import { once } from "node:events";
+import { stat } from "node:fs/promises";
+import { join } from "node:path";
 
-const dist = new URL("../dist/", import.meta.url).pathname;
 const beside = new URL("../../", import.meta.url).pathname;
 const site = "https://magnetitebrowser.org";
 // The one file a page may load from another origin: STATS.script in src/site.ts.
@@ -19,26 +21,30 @@ const statistics = "https://umami.stack-forge.cloud/umami";
 const repoFile = /^https:\/\/github\.com\/[^/]+\/([^/]+)\/blob\/[^/]+\/([^#?]+)/;
 const checkouts = { magnetite: join(beside, "magnetite"), "magnetite-sync": join(beside, "magnetite-sync") };
 const external = process.argv.includes("--external");
+// Not linked from any page: the home page's script adds the demo's frame, and no link leads to the 404 page.
+const demo = "/demo/";
+const unknown = "/no-such-page/";
 
-async function htmlFiles(dir) {
-  const out = [];
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...(await htmlFiles(path)));
-    else if (entry.name.endsWith(".html")) out.push(path);
-  }
-  return out;
-}
+process.env.PORT = "0";
+process.env.HOST = "127.0.0.1";
+const { server } = await import("../server.mjs");
+if (!server.listening) await once(server, "listening");
+const base = `http://127.0.0.1:${server.address().port}`;
 
 const exists = (path) => stat(path).then(() => true, () => false);
 
-/** File in dist/ that serves a site path, or null. */
-async function resolve(pathname) {
-  const clean = decodeURIComponent(pathname);
-  for (const candidate of [join(dist, clean), join(dist, clean, "index.html")]) {
-    if ((await exists(candidate)) && (await stat(candidate)).isFile()) return candidate;
-  }
-  return null;
+/** What the server answers for a site path: its status, and the HTML if it is a page. Asked once per path. */
+const answers = new Map();
+function ask(pathname) {
+  if (!answers.has(pathname))
+    answers.set(
+      pathname,
+      fetch(base + pathname).then(async (res) => ({
+        status: res.status,
+        html: res.headers.get("content-type")?.startsWith("text/html") ? await res.text() : (await res.body?.cancel(), null),
+      })),
+    );
+  return answers.get(pathname);
 }
 
 const ids = (html) => new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
@@ -46,12 +52,15 @@ const attrs = (html, name) => [...html.matchAll(new RegExp(`<([a-z]+)\\b[^>]*\\s
 
 const errors = [];
 const externalLinks = new Set();
-const pages = await htmlFiles(dist);
-const idCache = new Map();
+// Grows while pages are read: every internal link to a page adds it.
+const pages = ["/", demo, unknown];
 
-for (const file of pages) {
-  const html = await readFile(file, "utf8");
-  const page = "/" + relative(dist, file).replace(/index\.html$/, "");
+for (const page of pages) {
+  const { status, html } = await ask(page);
+  if (status !== (page === unknown ? 404 : 200) || html === null) {
+    errors.push(`${page}: answered ${status}`);
+    continue;
+  }
   if (!html.includes('http-equiv="Content-Security-Policy"')) errors.push(`${page}: no CSP meta tag`);
 
   // Anything the browser fetches by itself must come from this origin.
@@ -87,17 +96,19 @@ for (const file of pages) {
     }
     const url = new URL(href, `https://site${page}`);
     if (url.host !== "site") continue;
-    const target = await resolve(url.pathname);
-    if (!target) {
+    const target = await ask(url.pathname);
+    // A link within the page itself is fine on the 404 page too.
+    if (target.status !== 200 && url.pathname !== page) {
       errors.push(`${page}: broken link ${href}`);
       continue;
     }
-    if (url.hash && target.endsWith(".html")) {
-      if (!idCache.has(target)) idCache.set(target, ids(await readFile(target, "utf8")));
-      if (!idCache.get(target).has(url.hash.slice(1))) errors.push(`${page}: missing anchor ${href}`);
-    }
+    if (target.html === null) continue;
+    if (!pages.includes(url.pathname)) pages.push(url.pathname);
+    if (url.hash && !ids(target.html).has(url.hash.slice(1))) errors.push(`${page}: missing anchor ${href}`);
   }
 }
+server.close();
+server.closeAllConnections();
 
 if (external) {
   for (const href of externalLinks) {

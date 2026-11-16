@@ -7,6 +7,7 @@ import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { defaultLang, useTranslations, type Lang } from "../i18n/ui";
+import { CSP } from "../csp";
 import { STATS } from "../site";
 
 /** `index={false}` for pages that should not be indexed or have a canonical address (404). */
@@ -15,30 +16,16 @@ const { title, description, lang = defaultLang, index = true } = Astro.props;
 const t = useTranslations(lang);
 const fullTitle = title === "Magnetite" ? title : `${title} · Magnetite`;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-
-// Same policy the web server sends as a header (Caddyfile), where frame-ancestors is added:
-// scripts/smoke-test.sh compares the two.
-// Built pages only: the dev server injects inline styles and its own client script.
-const csp = [
-  "default-src 'none'",
-  `script-src 'self' ${STATS.origin}`,
-  // Where the statistics script reports a visit.
-  `connect-src ${STATS.origin}`,
-  "img-src 'self'",
-  "style-src 'self'",
-  "font-src 'self'",
-  // The tour's live window: this site's own /demo/ page.
-  "frame-src 'self'",
-  "base-uri 'none'",
-  "form-action 'none'",
-].join("; ");
 ---
 
 <!doctype html>
 <html lang={lang}>
   <head>
     <meta charset="utf-8" />
-    {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content={csp} />}
+    {
+      // Built pages only: the dev server injects inline styles and its own client script.
+      import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content={CSP} />
+    }
     <meta name="referrer" content="no-referrer" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />

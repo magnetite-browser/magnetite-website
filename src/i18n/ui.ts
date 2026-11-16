@@ -14,6 +14,7 @@ const en = {
   "nav.faq": "FAQ",
   "nav.download": "Download",
   "nav.source": "Source code",
+  "nav.stars": "stars on GitHub",
   "footer.product": "Product",
   "footer.project": "Project",
   "footer.legal": "Legal",

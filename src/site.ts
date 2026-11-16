@@ -47,8 +47,8 @@ export const HOSTING = {
 
 /**
  * Visitor statistics: our own Umami server, the one script the pages load
- * from another origin (layouts/Base.astro, privacy policy). The Caddyfile's
- * Content-Security-Policy and scripts/check-links.mjs name it too.
+ * from another origin (layouts/Base.astro, privacy policy). The
+ * Content-Security-Policy (csp.ts) and scripts/check-links.mjs name it too.
  */
 export const STATS = {
   origin: "https://umami.stack-forge.cloud",
