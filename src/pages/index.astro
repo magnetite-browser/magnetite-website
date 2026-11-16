@@ -6,7 +6,8 @@ import FieldCanvas from "../components/FieldCanvas.astro";
 import SyncDiagram from "../components/SyncDiagram.astro";
 import Terminal from "../components/Terminal.astro";
 import type { SceneId } from "../demo/api";
-import { ARC_SHUTDOWN, BREW_INSTALL, LATEST_VERSION, PLATFORMS, STAGE, docs, downloadUrl, repo } from "../site";
+import { latestVersion } from "../github";
+import { ARC_SHUTDOWN, BREW_INSTALL, PLATFORMS, STAGE, docs, downloadUrl, repo } from "../site";
 
 /** The systems with a package in the releases, and those without one: "macOS and Linux". */
 const systems = (ready: boolean) =>
@@ -296,6 +297,8 @@ const faq: { q: string; a: string }[] = [
     a: "Not for everyone yet. Things can break, including the format of the data on disk. On Intel Macs and Linux, sites that only serve H.264 video or AAC audio do not play yet. If you try it, keep your old browser around and tell us what breaks.",
   },
 ];
+
+const version = await latestVersion();
 ---
 
 <Base
@@ -679,7 +682,7 @@ const faq: { q: string; a: string }[] = [
             <span class="eyebrow">Download</span>
             <span class="beta">{STAGE.name}</span>
           </p>
-          <h2 id="download-title" class="section-title mt-5 font-display">Version {LATEST_VERSION} is out.</h2>
+          <h2 id="download-title" class="section-title mt-5 font-display">Version {version} is out.</h2>
           <p class="mt-5 max-w-lg text-lg leading-relaxed text-secondary">
             {STAGE.expect}
             {STAGE.updates}
@@ -695,8 +698,8 @@ const faq: { q: string; a: string }[] = [
           {
             PLATFORMS.map((p, i) => (
               <li class:list={[`d-${i}`]} data-reveal>
-                {downloadUrl(p) ? (
-                  <a href={downloadUrl(p)} class="platform">
+                {downloadUrl(p, version) ? (
+                  <a href={downloadUrl(p, version)} class="platform">
                     <span class="font-medium">
                       {p.os} <span class="text-muted">· {p.arch}</span>
                     </span>

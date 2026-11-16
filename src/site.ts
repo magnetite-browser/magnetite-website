@@ -7,12 +7,11 @@ export const GITHUB_REPO = "magnetite-browser/magnetite";
 export const DEFAULT_BRANCH = "main";
 
 /**
- * Version of the latest signed release on GitHub Releases, without the "v"
- * (e.g. "0.1.0"). While null, the download page says "Coming soon"; once set,
- * the buttons link straight to the release assets. Kept current by
- * scripts/follow-release.sh, which rewrites this line: keep its form.
+ * The release the pages link to until GitHub has told this server the latest
+ * one (src/github.ts), which it does within seconds of a start: only seen if
+ * GitHub cannot be reached then. Without the "v"; null would mean "no release yet".
  */
-export const LATEST_VERSION: string | null = "0.0.2";
+export const FALLBACK_VERSION: string | null = "0.0.3";
 
 /** Where to report vulnerabilities; same value as in SECURITY.md. */
 export const SECURITY_CONTACT = "security@magnetitebrowser.org";
@@ -177,6 +176,6 @@ export const PLATFORMS: readonly Platform[] = [
   },
 ];
 
-/** Direct link to a platform's file in the latest release, or null while there is none for it. */
-export const downloadUrl = (p: Platform): string | null =>
-  LATEST_VERSION === null || !p.ready ? null : `${repo.releases}/download/v${LATEST_VERSION}/${p.asset(LATEST_VERSION)}`;
+/** Direct link to a platform's file in a release (`latestVersion()` in github.ts), or null while there is none for it. */
+export const downloadUrl = (p: Platform, version: string | null): string | null =>
+  version === null || !p.ready ? null : `${repo.releases}/download/v${version}/${p.asset(version)}`;

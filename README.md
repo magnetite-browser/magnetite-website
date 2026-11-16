@@ -8,11 +8,12 @@ server.
 
 Stack: [Astro](https://astro.build) and Tailwind CSS, with pnpm. The pages
 are rendered on the server for every request (`output: "server"`, the Node
-adapter), because the header shows the repository's GitHub stars: the server
-asks GitHub at most once in 15 minutes and keeps the count in memory
-(`src/stars.ts`), so a visitor's browser never contacts GitHub, and a page
-never waits for it once a count is known. Without an answer from GitHub the
-header shows no count. Astro gives shared layouts and components for the pages, typed
+adapter), because they show two things from GitHub: the repository's stars
+in the header, and the latest release in the download links. The server asks
+GitHub for each at most once in 15 minutes and keeps the answers in memory
+(`src/github.ts`), so a visitor's browser never contacts GitHub, and a page
+never waits for it once a value is known. Without an answer from GitHub the
+header shows no count and the links name `FALLBACK_VERSION` (`src/site.ts`). Astro gives shared layouts and components for the pages, typed
 constants for every link and fact, and bundles the one small script they
 share into a file. The pages use no client framework. The one exception is
 the live demo, a page of its own (`/demo/`): it runs the app's sidebar, which
@@ -158,7 +159,8 @@ puts `dist/`, `server.mjs` and that package into a Node image, which serves
 on port 8080. That is plain HTTP, for a reverse proxy that holds the
 certificate. The container runs as an unprivileged user and writes nothing:
 no volumes, no settings, and a read-only root file system works. It makes one
-kind of outgoing request: to `api.github.com` for the star count.
+kind of outgoing request: to `api.github.com`, for the stars and the latest
+release.
 
 ```sh
 docker build -t magnetite-website .
@@ -204,7 +206,7 @@ made once.
 | Constant | What | Used on |
 |---|---|---|
 | `GITHUB_REPO` | `"owner/repo"` of the browser on GitHub. Every GitHub link, the Releases links and the Homebrew tap (`brew install --cask <owner>/magnetite/magnetite`) derive from it. | everywhere |
-| `LATEST_VERSION` | `null` until the first signed release; then e.g. `"0.1.0"`. The download buttons switch from "Coming soon" to direct links `…/releases/download/v<version>/<asset>`. Set by itself: the workflow "Follow the browser's release" looks once an hour for the latest published release and merges a pull request with the new value (`scripts/follow-release.sh`). | download page |
+| `FALLBACK_VERSION` | The release the pages link to if GitHub cannot be reached when the server starts. Otherwise the server asks GitHub for the latest published release (`src/github.ts`) and the download buttons link straight to its files, `…/releases/download/v<version>/<asset>`. Raise it by hand now and then. | download page, home page |
 | `SECURITY_CONTACT` | Where to report vulnerabilities; same value as in the browser's `SECURITY.md`. | security page |
 | `LEGAL` | The company that provides the site and publishes Magnetite, as in its own imprint. | imprint, privacy policy |
 | `HOSTING` | Where the site runs and how long server logs are kept. | privacy policy |
@@ -222,7 +224,7 @@ from `packaging/homebrew/magnetite.rb.template` there).
 
 ```
 src/site.ts                 facts and links (one place to change them)
-src/stars.ts                the repository's GitHub stars for the header, asked by the server and kept in memory
+src/github.ts               the repository's stars and latest release, asked by the server and kept in memory
 src/csp.ts, middleware.ts   the pages' Content-Security-Policy and the header that sends it
 src/i18n/ui.ts              strings for header and footer, typed per language
 src/layouts/Base.astro      <head> (CSP, Open Graph, statistics script), header, footer, motion script
