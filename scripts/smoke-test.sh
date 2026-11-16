@@ -1,7 +1,8 @@
 #!/bin/sh
 # Start a built image the way it should run (read-only, no capabilities) and
 # check what a visitor relies on: the pages answer, an unknown address gets
-# the 404 page, the security headers are there, built files are cached.
+# the 404 page, the security headers are there, built files are cached,
+# pages are compressed.
 # The container is removed again afterwards.
 #
 # Usage: scripts/smoke-test.sh <image>      (DOCKER=podman to use Podman)
@@ -40,7 +41,7 @@ curl --silent --max-time 5 "$base/no-such-page/" | grep -q "<title>" || fail "an
 meta=$(curl --silent --max-time 5 "$base/" | sed -n 's/.*http-equiv="Content-Security-Policy" content="\([^"]*\)".*/\1/p')
 [ -n "$meta" ] || fail "the home page has no Content-Security-Policy meta tag"
 [ "$(header / Content-Security-Policy)" = "$meta; frame-ancestors 'self'" ] ||
-  fail "the Content-Security-Policy header (Caddyfile) differs from the pages' own (src/layouts/Base.astro)"
+  fail "the Content-Security-Policy header (src/middleware.ts) differs from the pages' own (src/layouts/Base.astro)"
 [ "$(header / X-Content-Type-Options)" = nosniff ] || fail "X-Content-Type-Options is missing"
 [ -z "$(header / Server)" ] || fail "the Server header is sent"
 script=$(curl --silent --max-time 5 "$base/" | grep -o '/_astro/[^"]*\.js' | head -n 1)
@@ -48,4 +49,6 @@ case "$(header "$script" Cache-Control)" in
   *immutable*) ;;
   *) fail "built files are not cached ($script)" ;;
 esac
+curl --silent --output /dev/null --max-time 5 --header 'Accept-Encoding: gzip' --dump-header - "$base/" | grep -qi '^content-encoding: gzip' ||
+  fail "the home page is not compressed"
 echo "smoke test: ok"

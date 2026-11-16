@@ -1,12 +1,19 @@
 # magnetitebrowser.org
 
 The website of the [Magnetite browser](https://github.com/magnetite-browser/magnetite):
-a static site without cookies. Images, stylesheets, the font and the site's
-own scripts all come from the site itself. The one request to another server
-is the visitor statistics script, from our own Umami server.
+a site without cookies. Images, stylesheets, the font and the site's own
+scripts all come from the site itself. The one request a visitor's browser
+makes to another server is the visitor statistics script, from our own Umami
+server.
 
-Stack: [Astro](https://astro.build) (static output) and Tailwind CSS, with
-pnpm. Astro gives shared layouts and components for the pages, typed
+Stack: [Astro](https://astro.build) and Tailwind CSS, with pnpm. The pages
+are rendered on the server for every request (`output: "server"`, the Node
+adapter), because they show two things from GitHub: the repository's stars
+in the header, and the latest release in the download links. The server asks
+GitHub for each at most once in 15 minutes and keeps the answers in memory
+(`src/github.ts`), so a visitor's browser never contacts GitHub, and a page
+never waits for it once a value is known. Without an answer from GitHub the
+header shows no count and the links name `FALLBACK_VERSION` (`src/site.ts`). Astro gives shared layouts and components for the pages, typed
 constants for every link and fact, and bundles the one small script they
 share into a file. The pages use no client framework. The one exception is
 the live demo, a page of its own (`/demo/`): it runs the app's sidebar, which
@@ -118,10 +125,12 @@ Astro's anonymous telemetry is turned off in every script
 ```sh
 pnpm build            # astro check (types) + astro build + scripts/check-links.mjs
 pnpm check:external   # also requests every external link once
-pnpm preview          # serves dist/ locally
+pnpm preview          # runs the build (server.mjs) on http://localhost:8080
 ```
 
-`scripts/check-links.mjs` fails the build if:
+`scripts/check-links.mjs` starts the built server on a free local port, reads
+every page reachable from the home page, the live demo and the 404 page, and
+fails the build if:
 
 - an internal link, `#anchor` or canonical address points nowhere,
 - a link to a file in the browser's or the sync server's repository names a
@@ -133,19 +142,25 @@ pnpm preview          # serves dist/ locally
   tag. (The tour's frame is added by the script; the CSP lets a page frame
   this site's own pages only.)
 
-The output is `dist/`: HTML, CSS, the scripts and the font under `/_astro/`,
-icons, the pictures and the Open Graph image. About 1.8 MB, most of it the
-OG image, the font and the live demo's script (about 415 KB with the app's
-Settings pages, loaded only by the frames, once they come near).
+The output is `dist/`: `dist/client/` holds the files served as they are
+(CSS, the scripts and the font under `/_astro/`, icons, the pictures, the
+Open Graph image, the sitemap), about 1.6 MB, most of it the OG image, the
+font and the live demo's script (about 415 KB with the app's Settings pages,
+loaded only by the frames, once they come near). `dist/server/` is the code
+that renders the pages; it carries its own dependencies.
 
 ## Deploy
 
-The `Dockerfile` builds the site (the same `pnpm build`, checks included) and
-puts `dist/` into a small image with Caddy, which serves it on port 8080
-with the security headers the pages are written for (`Caddyfile`). That is
-plain HTTP, for a reverse proxy that holds the certificate. The container
-runs as an unprivileged user and writes nothing: no volumes, no settings,
-and a read-only root file system works.
+`server.mjs` is the web server: Astro's handler for the files and the pages,
+plus what that leaves out, the security headers on every response and
+compression (the one package needed at run time, `compression`). The
+`Dockerfile` builds the site (the same `pnpm build`, checks included) and
+puts `dist/`, `server.mjs` and that package into a Node image, which serves
+on port 8080. That is plain HTTP, for a reverse proxy that holds the
+certificate. The container runs as an unprivileged user and writes nothing:
+no volumes, no settings, and a read-only root file system works. It makes one
+kind of outgoing request: to `api.github.com`, for the stars and the latest
+release.
 
 ```sh
 docker build -t magnetite-website .
@@ -160,31 +175,28 @@ request and runs the smoke test on it.
 In front of the container:
 
 - `www.magnetitebrowser.org` redirects to `magnetitebrowser.org`.
-- Caddy here writes no access log. What the reverse proxy logs, and for how
-  long, is what the privacy policy states (`HOSTING` in `src/site.ts`).
+- The server here writes no access log. What the reverse proxy logs, and for
+  how long, is what the privacy policy states (`HOSTING` in `src/site.ts`).
 
-`dist/` is plain static files, so another web server can serve it instead.
-It then has to serve `index.html` for directory paths, answer unknown paths
-with `404.html` and status 404, and send these headers (a `<meta>` CSP is in
-every page, but `frame-ancestors` and the other headers only work as real
-headers):
+The headers every response gets (`server.mjs`), and the pages' own policy
+(`src/middleware.ts`):
 
 ```
-Content-Security-Policy: default-src 'none'; script-src 'self' https://umami.stack-forge.cloud; connect-src https://umami.stack-forge.cloud; img-src 'self'; style-src 'self'; font-src 'self'; frame-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'
 X-Content-Type-Options: nosniff
 Referrer-Policy: no-referrer
 Permissions-Policy: camera=(), microphone=(), geolocation=()
 Cross-Origin-Opener-Policy: same-origin
 Strict-Transport-Security: max-age=31536000
 Cache-Control: public, max-age=31536000, immutable    # only for /_astro/*
+Content-Security-Policy: default-src 'none'; script-src 'self' https://umami.stack-forge.cloud; connect-src https://umami.stack-forge.cloud; img-src 'self'; style-src 'self'; font-src 'self'; frame-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'    # pages only
 ```
 
 `script-src` and `connect-src` name the statistics server. `frame-src 'self'`
 and `frame-ancestors 'self'` are for the tour: the home page frames this
 site's own `/demo/` page, and nothing else may frame or be framed. The
-policy lives in three places that must agree: `src/layouts/Base.astro` (the
-`<meta>` tag), the `Caddyfile` (the header) and this list; the smoke test
-compares the first two.
+policy is written once, in `src/csp.ts`: every page carries it as a `<meta>`
+tag and gets it as a header, where `frame-ancestors` is added (it only works
+as a header); the smoke test compares the two.
 
 ## Facts in `src/site.ts`
 
@@ -194,7 +206,7 @@ made once.
 | Constant | What | Used on |
 |---|---|---|
 | `GITHUB_REPO` | `"owner/repo"` of the browser on GitHub. Every GitHub link, the Releases links and the Homebrew tap (`brew install --cask <owner>/magnetite/magnetite`) derive from it. | everywhere |
-| `LATEST_VERSION` | `null` until the first signed release; then e.g. `"0.1.0"`. The download buttons switch from "Coming soon" to direct links `…/releases/download/v<version>/<asset>`. Set by itself: the workflow "Follow the browser's release" looks once an hour for the latest published release and merges a pull request with the new value (`scripts/follow-release.sh`). | download page |
+| `FALLBACK_VERSION` | The release the pages link to if GitHub cannot be reached when the server starts. Otherwise the server asks GitHub for the latest published release (`src/github.ts`) and the download buttons link straight to its files, `…/releases/download/v<version>/<asset>`. Raise it by hand now and then. | download page, home page |
 | `SECURITY_CONTACT` | Where to report vulnerabilities; same value as in the browser's `SECURITY.md`. | security page |
 | `LEGAL` | The company that provides the site and publishes Magnetite, as in its own imprint. | imprint, privacy policy |
 | `HOSTING` | Where the site runs and how long server logs are kept. | privacy policy |
@@ -212,6 +224,8 @@ from `packaging/homebrew/magnetite.rb.template` there).
 
 ```
 src/site.ts                 facts and links (one place to change them)
+src/github.ts               the repository's stars and latest release, asked by the server and kept in memory
+src/csp.ts, middleware.ts   the pages' Content-Security-Policy and the header that sends it
 src/i18n/ui.ts              strings for header and footer, typed per language
 src/layouts/Base.astro      <head> (CSP, Open Graph, statistics script), header, footer, motion script
 src/components/             header, footer, logo, sync diagram, terminal
@@ -224,7 +238,7 @@ src/pages/                  index, demo, download, privacy, imprint, license, se
 src/styles/global.css       Tailwind, palette, buttons, glass, reveals
 public/                     logo.svg, favicon.svg/.ico, apple-touch-icon.png, og.png, tour.webp, robots.txt,
                             favicons/, ext-icons/, cards/
-Dockerfile, Caddyfile       the image the deployment runs (see Deploy)
+server.mjs, Dockerfile      the web server and the image the deployment runs (see Deploy)
 scripts/check-links.mjs     post-build checks (see above)
 scripts/smoke-test.sh       starts a built image and checks its pages and headers
 scripts/og.html             source of og.png; scripts/make-images.sh renders it, tour.webp and cards/ (macOS)

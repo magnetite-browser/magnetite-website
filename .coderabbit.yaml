@@ -86,13 +86,12 @@ reviews:
       instructions: |
         Scripts are Node without dependencies, POSIX sh or Swift (macOS only, for pictures
         that are committed). Workflows pin every action to a full commit SHA and ask for no
-        more than read access. The one exception is follow-release.yml, which opens and
-        merges the pull request that sets the latest version and needs write access for it.
-    - path: "{Dockerfile,Caddyfile}"
+        more than read access.
+    - path: "{Dockerfile,server.mjs}"
       instructions: |
         The image the deployment runs. Base images are pinned by digest. The container runs
         as an unprivileged user, writes nothing and logs no requests. The security headers
-        in the Caddyfile match the policy in src/layouts/Base.astro.
+        are set in server.mjs, the pages' policy (src/csp.ts) in src/middleware.ts.
     - path: "**/*.md"
       instructions: |
         Plain, short English. Facts (commands, file names, sizes, headers) must match the
