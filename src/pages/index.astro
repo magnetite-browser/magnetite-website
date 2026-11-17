@@ -274,7 +274,7 @@ const faq: { q: string; a: string }[] = [
   },
   {
     q: "Which platforms?",
-    a: "macOS 13 or later and Linux (x86_64 and ARM64). Magnetite is developed and used daily on Macs with Apple silicon; the packages for Intel Macs and Linux are experimental. Windows (x86_64) is coming soon, and so are apps for iPhone, iPad and Android.",
+    a: `macOS 13 or later and Linux (x86_64 and ARM64). Magnetite is developed and used daily on Macs with Apple silicon; the packages for Intel Macs and Linux are experimental. Windows (x86_64) is coming soon, and so are apps for ${MOBILE.map((m) => m.devices).join(", and for ")}.`,
   },
   {
     q: "Is it free?",
