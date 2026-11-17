@@ -7,7 +7,7 @@ import SyncDiagram from "../components/SyncDiagram.astro";
 import Terminal from "../components/Terminal.astro";
 import type { SceneId } from "../demo/api";
 import { latestVersion } from "../github";
-import { ARC_SHUTDOWN, BREW_INSTALL, PLATFORMS, STAGE, docs, downloadUrl, repo } from "../site";
+import { ARC_SHUTDOWN, BREW_INSTALL, MOBILE, PLATFORMS, STAGE, docs, downloadUrl, repo } from "../site";
 
 /** The systems with a package in the releases, and those without one: "macOS and Linux". */
 const systems = (ready: boolean) =>
@@ -274,7 +274,7 @@ const faq: { q: string; a: string }[] = [
   },
   {
     q: "Which platforms?",
-    a: "macOS 13 or later and Linux (x86_64 and ARM64). Magnetite is developed and used daily on Macs with Apple silicon; the packages for Intel Macs and Linux are experimental. Windows (x86_64) is coming soon.",
+    a: "macOS 13 or later and Linux (x86_64 and ARM64). Magnetite is developed and used daily on Macs with Apple silicon; the packages for Intel Macs and Linux are experimental. Windows (x86_64) is coming soon, and so are apps for iPhone, iPad and Android.",
   },
   {
     q: "Is it free?",
@@ -720,6 +720,55 @@ const version = await latestVersion();
             ))
           }
         </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mobile: a teaser, nothing to download yet -->
+  <section id="mobile" class="mx-auto max-w-7xl px-5 pt-16 sm:pt-24" aria-labelledby="mobile-title">
+    <div class="glass grid items-center gap-10 overflow-hidden rounded-[28px] p-8 sm:p-12 lg:grid-cols-[1.1fr_1fr] lg:gap-14" data-reveal>
+      <div>
+        <p class="flex items-center gap-3">
+          <span class="eyebrow">Mobile</span>
+          <span class="beta">Coming soon</span>
+        </p>
+        <h2 id="mobile-title" class="section-title mt-5 font-display">Your sidebar, in your pocket.</h2>
+        <p class="mt-5 max-w-lg text-lg leading-relaxed text-secondary">
+          Magnetite is coming to phones and tablets. Your spaces, favorites and pinned tabs arrive from your computer
+          through the encrypted sync, and a page you started on the phone can be picked up on the desktop.
+        </p>
+        <ul class="mt-7 flex flex-wrap gap-2" aria-label="Devices the apps are being built for">
+          {MOBILE.map((m) => <li class="source">{m.devices}</li>)}
+        </ul>
+        <p class="mt-6 text-sm text-muted">No date yet. Like the desktop browser: no account, no telemetry.</p>
+      </div>
+
+      <!-- A drawing of the apps, not a screenshot -->
+      <div class="devices" aria-hidden="true">
+        <div class="device tablet">
+          <div class="tablet-side">
+            <span class="m-chips"><i></i><i></i><i></i></span>
+            <span class="m-row"><i class="sage"></i><b></b></span>
+            <span class="m-row"><i class="sky"></i><b class="short"></b></span>
+            <span class="m-row"><i class="rose"></i><b></b></span>
+            <span class="m-row on"><i></i><b class="short"></b></span>
+          </div>
+          <div class="tablet-page">
+            <span class="m-bar"></span>
+            <span class="m-text w-70"></span>
+            <span class="m-text"></span>
+            <span class="m-text w-50"></span>
+          </div>
+        </div>
+        <div class="device phone">
+          <span class="m-chips"><i></i><i></i><i></i></span>
+          <span class="m-favs"><i class="sage"></i><i class="sky"></i><i class="rose"></i><i></i></span>
+          <span class="m-row"><i class="sky"></i><b></b></span>
+          <span class="m-row"><i class="sage"></i><b class="short"></b></span>
+          <span class="m-row"><i class="rose"></i><b></b></span>
+          <span class="m-row"><i></i><b class="short"></b></span>
+          <span class="m-bar"></span>
+        </div>
       </div>
     </div>
   </section>
@@ -1546,6 +1595,140 @@ const version = await latestVersion();
     100% {
       box-shadow: 0 0 0 10px rgb(125 220 154 / 0);
     }
+  }
+
+  /* Mobile teaser: a tablet and a phone drawn with boxes. */
+  .devices {
+    position: relative;
+    height: 21rem;
+    max-width: 30rem;
+    width: 100%;
+    margin-inline: auto;
+  }
+  .device {
+    position: absolute;
+    border: 1px solid var(--color-line-strong);
+    background: linear-gradient(180deg, #1d1d21, #141417);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.08),
+      0 30px 60px -25px rgb(0 0 0 / 0.9);
+  }
+  .tablet {
+    inset: 1.5rem 0 2.5rem 12%;
+    display: grid;
+    grid-template-columns: 34% 1fr;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .tablet-side {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1rem 0.8rem 1rem 3.2rem;
+    border-right: 1px solid var(--color-line);
+    background: rgb(255 255 255 / 0.02);
+  }
+  .tablet-page {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1rem;
+  }
+  .phone {
+    left: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 10.5rem;
+    height: 19.5rem;
+    padding: 1.4rem 0.9rem 0.9rem;
+    border-radius: 28px;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.1),
+      0 0 0 1px rgb(215 166 101 / 0.25),
+      0 30px 70px -20px rgb(0 0 0 / 0.95),
+      0 0 50px -15px rgb(215 166 101 / 0.35);
+  }
+  .m-chips,
+  .m-favs,
+  .m-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .m-chips i {
+    width: 1.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.1);
+  }
+  .m-chips i:first-child {
+    background: var(--color-accent);
+  }
+  .m-favs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .m-favs i {
+    aspect-ratio: 1;
+    border-radius: 9px;
+    background: rgb(255 255 255 / 0.06);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+  .m-row i {
+    flex: none;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 4px;
+    background: var(--color-muted);
+  }
+  .m-row b {
+    flex: 1;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.13);
+  }
+  .m-row b.short {
+    flex: 0 0 55%;
+  }
+  .m-row.on {
+    margin: -0.3rem;
+    padding: 0.3rem;
+    border-radius: 7px;
+    background: var(--color-row-active);
+  }
+  .devices .sage {
+    background: var(--color-tint-sage);
+  }
+  .devices .sky {
+    background: var(--color-tint-sky);
+  }
+  .devices .rose {
+    background: var(--color-tint-rose);
+  }
+  .m-bar {
+    flex: none;
+    height: 1.5rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.06);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+  .phone .m-bar {
+    margin-top: auto;
+  }
+  .m-text {
+    height: 0.5rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.08);
+  }
+  .m-text.w-70 {
+    width: 70%;
+    height: 0.8rem;
+    background: rgb(255 255 255 / 0.16);
+  }
+  .m-text.w-50 {
+    width: 50%;
   }
 
   /* FAQ */

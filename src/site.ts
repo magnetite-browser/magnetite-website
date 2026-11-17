@@ -176,6 +176,12 @@ export const PLATFORMS: readonly Platform[] = [
   },
 ];
 
+/** The apps for phones and tablets: announced, nothing to download yet. */
+export const MOBILE = [
+  { os: "iOS and iPadOS", devices: "iPhone and iPad" },
+  { os: "Android", devices: "Android phones and tablets" },
+] as const;
+
 /** Direct link to a platform's file in a release (`latestVersion()` in github.ts), or null while there is none for it. */
 export const downloadUrl = (p: Platform, version: string | null): string | null =>
   version === null || !p.ready ? null : `${repo.releases}/download/v${version}/${p.asset(version)}`;
