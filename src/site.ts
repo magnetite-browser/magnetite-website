@@ -97,6 +97,7 @@ export const docs = {
   syncPublic: `${SYNC.repo}/blob/${DEFAULT_BRANCH}/docs/public-instance.md`,
   linux: repo.file("packaging/linux/README.md"),
   specs: repo.file("docs/spec/README.md"),
+  developer: repo.file("docs/spec/developer.md"),
 };
 
 export const EUPL_TEXTS = "https://interoperable-europe.ec.europa.eu/collection/eupl/eupl-text-eupl-12";
