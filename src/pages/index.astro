@@ -26,6 +26,7 @@ const ticker = [
   "Smart folders",
   "Private profiles",
   "Clean links",
+  "Developer mode",
   "Encrypted sync",
 ];
 
@@ -235,6 +236,53 @@ const features: { scene: SceneId; title: string; text: string; focus: string; sh
     pad: 10,
     max: 300,
     still: 0.9,
+  },
+];
+
+// Developer mode (docs/spec/developer.md). `tools` are the buttons of the
+// developer bar as the section draws it, in the bar's own order; a `sep`
+// starts a new group, `on` colours a tool that is in use.
+const devTools: { icon: IconName; label: string; sep?: boolean; on?: boolean; count?: string }[] = [
+  { icon: "picker", label: "Pick an element" },
+  { icon: "terminal", label: "Console", count: "2" },
+  { icon: "requests", label: "Network" },
+  { icon: "contrast", label: "Show the page as…", sep: true },
+  { icon: "globe", label: "Time zone" },
+  { icon: "devices", label: "Responsive split", sep: true, on: true },
+  { icon: "images", label: "Capture set" },
+  { icon: "video", label: "Record" },
+  { icon: "eraser", label: "Clear data", sep: true },
+];
+const devFeatures: { icon: IconName; title: string; text: string }[] = [
+  {
+    icon: "terminal",
+    title: "A bar for your local pages",
+    text: "Pages your computer serves get a developer bar: the project’s name, a count of console errors, and the console, the network panel and the element picker one click away.",
+  },
+  {
+    icon: "devices",
+    title: "Responsive split",
+    text: "The page as a phone beside itself, with touch and a mobile layout. Follow a link in one and the other goes along.",
+  },
+  {
+    icon: "contrast",
+    title: "Show the page as…",
+    text: "Dark or light, a slow network or none, reduced motion, print styles, a slow processor, or the time in Tokyo. No DevTools needed.",
+  },
+  {
+    icon: "images",
+    title: "Capture set and recording",
+    text: "One picture of the page in light and dark at a phone’s, a tablet’s and a computer’s size. Or record the page as a video.",
+  },
+  {
+    icon: "server",
+    title: "Waits for your server",
+    text: "Server not up yet? The tab waits for localhost and loads once something listens. The command bar lists the servers running on your computer.",
+  },
+  {
+    icon: "bot",
+    title: "A bridge for coding agents",
+    text: "Off until you turn it on: agents on your computer can look at your local pages, with screenshots, console errors and markup. They read and cannot click or type.",
   },
 ];
 
@@ -596,6 +644,64 @@ const version = await latestVersion();
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- Developer mode: the developer bar drawn over a page with its phone
+       beside it, then what the mode does. -->
+  <section id="developers" class="mx-auto max-w-7xl px-5 pt-16 sm:pt-24" aria-labelledby="dev-title">
+    <div class="grid items-end gap-10 lg:grid-cols-[1fr_1.15fr] lg:gap-14">
+      <div>
+        <p class="eyebrow" data-reveal>Developer mode</p>
+        <h2 id="dev-title" class="section-title mt-5 font-display" data-reveal>Made for the pages you build.</h2>
+        <p class="mt-5 max-w-xl leading-relaxed text-secondary" data-reveal>
+          Open <span class="font-mono text-[0.9em] text-fg">localhost</span> and Magnetite knows you are at work: the tab
+          gets a caution border, and a bar with your tools appears above the page. Any other site joins with one switch
+          in its site controls.
+        </p>
+      </div>
+      {/* Decorative: the list below says the same in words. */}
+      <div class="dev-shot card" aria-hidden="true" data-reveal>
+        <div class="dev-tab"><span class="dev-fav"></span>shop<span class="dev-badge">2</span></div>
+        <div class="dev-bar">
+          <span class="dev-name">shop</span>
+          <Icon name="bot" size={14} class="text-accent" />
+          <span class="grow"></span>
+          {
+            devTools.map((t) => (
+              <>
+                {t.sep && <span class="dev-sep" />}
+                <span class="dev-tool" data-on={t.on} data-errors={t.count !== undefined || undefined}>
+                  <Icon name={t.icon} size={15} />
+                  {t.count}
+                </span>
+              </>
+            ))
+          }
+        </div>
+        <div class="dev-pages">
+          <div class="dev-page"><i></i><i></i><i></i><b></b><b></b><b></b></div>
+          <div class="dev-page dev-phone"><i></i><i></i><i></i><b></b><b></b></div>
+        </div>
+      </div>
+    </div>
+    <ul class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        devFeatures.map((f, i) => (
+          <li class:list={["card spot p-7", `d-${i % 3}`]} data-reveal>
+            <span class="orb">
+              <Icon name={f.icon} size={20} />
+            </span>
+            <h3 class="mt-6 font-display text-lg font-semibold">{f.title}</h3>
+            <p class="mt-2 text-[0.9375rem] leading-relaxed text-secondary">{f.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="mt-6 text-sm text-muted" data-reveal>
+      Also in there: copy an element as context for an issue or an agent, and open a page beside itself with another
+      profile’s logins.
+      <a href={docs.developer} class="link whitespace-nowrap">Read the full description</a>
+    </p>
   </section>
 
   <!-- Privacy -->
@@ -1375,6 +1481,143 @@ const version = await latestVersion();
       0 1px 0 #0a0a0c,
       0 0 18px -4px rgb(215 166 101 / 0.6);
     color: var(--color-champagne);
+  }
+
+  /* Developer mode: a drawing of a tab row with its caution border, the
+     developer bar, and a page with its phone beside it. */
+  .dev-shot {
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+  }
+  .dev-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: min(100%, 13rem);
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 9px;
+    background: var(--color-row-active);
+    color: var(--color-fg);
+    /* The app's own stripes (`.row[data-dev]`). */
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      padding: 2px;
+      border-radius: inherit;
+      background: repeating-linear-gradient(-45deg, #f5a524 0 6px, rgb(245 165 36 / 0.18) 6px 12px);
+      mask:
+        linear-gradient(#000 0 0) content-box exclude,
+        linear-gradient(#000 0 0);
+    }
+  }
+  .dev-fav {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    background: var(--color-tint-sage);
+  }
+  .dev-badge {
+    margin-left: auto;
+    padding: 0 5px;
+    border-radius: 8px;
+    background: rgb(240 93 93 / 0.18);
+    color: #f08c8c;
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+  .dev-bar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 36px;
+    padding: 0 6px 0 12px;
+    overflow: hidden;
+    border-radius: 9px;
+    background: rgb(255 255 255 / 0.045);
+  }
+  .dev-name {
+    margin-right: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+  .dev-sep {
+    flex: none;
+    width: 1px;
+    height: 14px;
+    margin: 0 4px;
+    background: var(--color-line-strong);
+  }
+  .dev-tool {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 4px;
+    height: 26px;
+    padding: 0 5px;
+    border-radius: 6px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    &[data-on] {
+      background: var(--color-accent-soft);
+      color: var(--color-accent);
+    }
+    &[data-errors] {
+      color: #f08c8c;
+    }
+  }
+  .dev-pages {
+    display: grid;
+    grid-template-columns: 1fr 26%;
+    gap: 8px;
+    height: 150px;
+  }
+  .dev-page {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-content: start;
+    gap: 8px;
+    padding: 12px;
+    overflow: hidden;
+    border-radius: 9px;
+    background: var(--color-ink);
+    /* Lines of text across, then three boxes: stacked in the phone. */
+    & i {
+      grid-column: 1 / -1;
+      height: 7px;
+      border-radius: 4px;
+      background: var(--color-row-active);
+      &:first-child {
+        width: 45%;
+        height: 11px;
+        background: var(--color-line-strong);
+      }
+      &:nth-child(3) {
+        width: 70%;
+      }
+    }
+    & b {
+      height: 64px;
+      border-radius: 7px;
+      background: var(--color-row-hover);
+    }
+  }
+  .dev-phone {
+    grid-template-columns: 1fr;
+    & b {
+      height: 34px;
+    }
+  }
+  /* Narrow screens: the bar keeps its first tools and loses the rest at its edge. */
+  @media (width < 30rem) {
+    .dev-bar .grow {
+      display: none;
+    }
   }
 
   /* The smaller features: a list of cards, each with one piece of the real
