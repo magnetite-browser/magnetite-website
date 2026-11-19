@@ -7,11 +7,12 @@ import SyncDiagram from "../components/SyncDiagram.astro";
 import Terminal from "../components/Terminal.astro";
 import type { SceneId } from "../demo/api";
 import { latestVersion } from "../github";
-import { ARC_SHUTDOWN, BREW_INSTALL, MOBILE, PLATFORMS, STAGE, docs, downloadUrl, repo, type Platform } from "../site";
+import { ARC_SHUTDOWN, BREW_INSTALL, MOBILE, PLATFORMS, STAGE, docs, downloadUrl, repo, systems } from "../site";
 
-/** The systems whose packages have a status: "macOS and Linux". */
-const systems = (status: Platform["status"]) =>
-  [...new Set(PLATFORMS.filter((p) => p.status === status).map((p) => p.os))].join(" and ");
+/** The experimental packages, a sentence or two each: "Windows (x86_64, Windows 10 or newer) is experimental. …" */
+const experimental = PLATFORMS.filter((p) => p.status === "Experimental")
+  .map((p) => `${p.os} (${p.arch}, ${p.requirements}) is experimental.${p.note ? ` ${p.note}` : ""}`)
+  .join(" ");
 
 const ticker = [
   "Sidebar tabs",
@@ -274,7 +275,7 @@ const faq: { q: string; a: string }[] = [
   },
   {
     q: "Which platforms?",
-    a: `macOS 13 or later, Linux (x86_64 and ARM64) and Windows. Magnetite is developed and used daily on Macs with Apple silicon; the packages for Intel Macs, Linux and Windows (x86_64, Windows 10 or newer) are experimental, and the Windows installer is not signed yet. Apps are coming soon for ${MOBILE.map((m) => m.devices).join(", and for ")}.`,
+    a: `macOS 13 or later, Linux (x86_64 and ARM64) and ${systems("Experimental")}. Magnetite is developed and used daily on Macs with Apple silicon; the packages for Intel Macs and Linux are less tested. ${experimental} Apps are coming soon for ${MOBILE.map((m) => m.devices).join(", and for ")}.`,
   },
   {
     q: "Is it free?",
