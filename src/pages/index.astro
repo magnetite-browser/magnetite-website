@@ -7,11 +7,11 @@ import SyncDiagram from "../components/SyncDiagram.astro";
 import Terminal from "../components/Terminal.astro";
 import type { SceneId } from "../demo/api";
 import { latestVersion } from "../github";
-import { ARC_SHUTDOWN, BREW_INSTALL, MOBILE, PLATFORMS, STAGE, docs, downloadUrl, repo } from "../site";
+import { ARC_SHUTDOWN, BREW_INSTALL, MOBILE, PLATFORMS, STAGE, docs, downloadUrl, repo, type Platform } from "../site";
 
-/** The systems with a package in the releases, and those without one: "macOS and Linux". */
-const systems = (ready: boolean) =>
-  [...new Set(PLATFORMS.filter((p) => p.ready === ready).map((p) => p.os))].join(" and ");
+/** The systems whose packages have a status: "macOS and Linux". */
+const systems = (status: Platform["status"]) =>
+  [...new Set(PLATFORMS.filter((p) => p.status === status).map((p) => p.os))].join(" and ");
 
 const ticker = [
   "Sidebar tabs",
@@ -274,7 +274,7 @@ const faq: { q: string; a: string }[] = [
   },
   {
     q: "Which platforms?",
-    a: `macOS 13 or later and Linux (x86_64 and ARM64). Magnetite is developed and used daily on Macs with Apple silicon; the packages for Intel Macs and Linux are experimental. Windows (x86_64) is coming soon, and so are apps for ${MOBILE.map((m) => m.devices).join(", and for ")}.`,
+    a: `macOS 13 or later, Linux (x86_64 and ARM64) and Windows. Magnetite is developed and used daily on Macs with Apple silicon; the packages for Intel Macs, Linux and Windows (x86_64, Windows 10 or newer) are experimental, and the Windows installer is not signed yet. Apps are coming soon for ${MOBILE.map((m) => m.devices).join(", and for ")}.`,
   },
   {
     q: "Is it free?",
@@ -340,9 +340,9 @@ const version = await latestVersion();
         <p class="load mt-8 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs tracking-wide text-muted d-4">
           <span class="text-accent">Fe₃O₄</span>
           <span aria-hidden="true">·</span>
-          <span>For {systems(true)}</span>
+          <span>For {systems("Available")}</span>
           <span aria-hidden="true">·</span>
-          <span>{systems(false)} coming soon</span>
+          <span>{systems("Experimental")} experimental</span>
         </p>
       </div>
 

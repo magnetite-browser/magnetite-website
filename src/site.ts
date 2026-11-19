@@ -10,8 +10,9 @@ export const DEFAULT_BRANCH = "main";
  * The release the pages link to until GitHub has told this server the latest
  * one (src/github.ts), which it does within seconds of a start: only seen if
  * GitHub cannot be reached then. Without the "v"; null would mean "no release yet".
+ * It has to be a release with a package for every platform marked `ready` below.
  */
-export const FALLBACK_VERSION: string | null = "0.0.3";
+export const FALLBACK_VERSION: string | null = "0.0.9";
 
 /** Where to report vulnerabilities; same value as in SECURITY.md. */
 export const SECURITY_CONTACT = "security@magnetitebrowser.org";
@@ -121,8 +122,8 @@ export type Platform = {
   arch: string;
   /** Release asset name for a version, as scripts/release produces it. */
   asset: (version: string) => string;
-  /** What works today, in one short line. */
-  status: string;
+  /** How far along the package is; the home page's first screen groups the systems by it. */
+  status: "Available" | "Experimental" | "Coming soon";
   /** Releases carry a package for it; lights the status dot on the home page. */
   ready: boolean;
   requirements: string;
@@ -169,10 +170,10 @@ export const PLATFORMS: readonly Platform[] = [
     id: "windows-x86_64",
     os: "Windows",
     arch: "x86_64",
-    asset: (v) => `magnetite-${v}-windows-x86_64.zip`,
-    status: "Coming soon",
-    ready: false,
-    requirements: "64-bit Windows",
+    asset: (v) => `Magnetite-${v}-windows-x86_64-setup.exe`,
+    status: "Experimental",
+    ready: true,
+    requirements: "Windows 10 or newer. Not signed yet, so Windows warns before the installer starts.",
   },
 ];
 
