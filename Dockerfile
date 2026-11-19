@@ -2,7 +2,7 @@
 # renders the pages for every request and sends the security headers they are
 # written for. Both stages use one image, pinned by digest (the multi-arch
 # index of the tag); bump tag and digest together.
-FROM docker.io/library/node:26-alpine@sha256:8996bb5821d62a8fd9bb27c1cb07462f3fdce6e47d640c6a881ead0b064ce216 AS build
+FROM docker.io/library/node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS build
 WORKDIR /src
 COPY package.json pnpm-lock.yaml ./
 # pnpm in the version package.json names (packageManager); Node no longer ships corepack.
@@ -14,7 +14,7 @@ RUN pnpm build
 # The built server carries its own code; what is left to install is what server.mjs imports.
 RUN pnpm prune --prod
 
-FROM docker.io/library/node:26-alpine@sha256:8996bb5821d62a8fd9bb27c1cb07462f3fdce6e47d640c6a881ead0b064ce216
+FROM docker.io/library/node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5
 ARG REVISION=unknown
 LABEL org.opencontainers.image.title="magnetite-website" \
       org.opencontainers.image.description="magnetitebrowser.org, the website of the Magnetite browser" \
