@@ -9,6 +9,11 @@ import type { SceneId } from "../demo/api";
 import { latestVersion } from "../github";
 import { ARC_SHUTDOWN, BREW_INSTALL, MOBILE, PLATFORMS, STAGE, docs, downloadUrl, repo, systems } from "../site";
 
+/** The Windows packages for the platform FAQ: "Windows 10 or newer (x86_64)". */
+const windows = PLATFORMS.filter((p) => p.os === "Windows")
+  .map((p) => `${p.requirements} (${p.arch})`)
+  .join(", ");
+
 const ticker = [
   "Sidebar tabs",
   "Spaces",
@@ -270,7 +275,7 @@ const faq: { q: string; a: string }[] = [
   },
   {
     q: "Which platforms?",
-    a: `macOS 13 or later, Linux (x86_64 and ARM64) and Windows 10 or newer (x86_64). Magnetite is developed and used daily on Macs with Apple silicon; the packages for Intel Macs, Linux and Windows are less tested. ${PLATFORMS.flatMap((p) => p.note ?? []).join(" ")} Apps are coming soon for ${MOBILE.map((m) => m.devices).join(", and for ")}.`,
+    a: `macOS 13 or later, Linux (x86_64 and ARM64) and ${windows}. Magnetite is developed and used daily on Macs with Apple silicon; the packages for ${STAGE.lessTested} are less tested. ${PLATFORMS.flatMap((p) => p.note ?? []).join(" ")} Apps are coming soon for ${MOBILE.map((m) => m.devices).join(", and for ")}.`,
   },
   {
     q: "Is it free?",

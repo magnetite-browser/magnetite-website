@@ -111,6 +111,8 @@ export const STAGE = {
   expect:
     "Magnetite is in beta: expect rough edges and breaking changes. It is used daily on macOS with Apple silicon; the other packages are less tested.",
   updates: "Magnetite updates itself from GitHub Releases.",
+  /** The packages besides macOS on Apple silicon, the one Magnetite is developed and used on daily. */
+  lessTested: "Intel Macs, Linux and Windows",
 } as const;
 
 /** Homebrew cask from the project's own tap (magnetite-browser/homebrew-magnetite). */

@@ -3,7 +3,7 @@ import Base from "../layouts/Base.astro";
 import PageHeader from "../components/PageHeader.astro";
 import Icon from "../components/Icon.astro";
 import { latestVersion } from "../github";
-import { BREW_INSTALL, MOBILE, NODE_VERSION, PLATFORMS, docs, downloadUrl, repo, systems } from "../site";
+import { BREW_INSTALL, MOBILE, NODE_VERSION, PLATFORMS, STAGE, docs, downloadUrl, repo, systems } from "../site";
 
 const version = await latestVersion();
 const released = version !== null;
@@ -24,7 +24,7 @@ const groups = (["macOS", "Linux", "Windows"] as const).map((os) => ({
       released ? (
         <p class="mt-5 text-lg leading-relaxed text-secondary">
           The latest release is version {version}. Magnetite is developed and used daily on macOS with Apple
-          silicon; the packages for Intel Macs, Linux and Windows are less tested. Expect breaking changes, including to the data
+          silicon; the packages for {STAGE.lessTested} are less tested. Expect breaking changes, including to the data
           on disk. All files, checksums and release notes are on <a href={repo.releases} class="link">GitHub Releases</a>.
         </p>
       ) : (
