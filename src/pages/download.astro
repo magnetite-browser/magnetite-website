@@ -3,7 +3,7 @@ import Base from "../layouts/Base.astro";
 import PageHeader from "../components/PageHeader.astro";
 import Icon from "../components/Icon.astro";
 import { latestVersion } from "../github";
-import { BREW_INSTALL, MOBILE, NODE_VERSION, PLATFORMS, docs, downloadUrl, repo, systems } from "../site";
+import { BREW_INSTALL, MOBILE, NODE_VERSION, PLATFORMS, STAGE, docs, downloadUrl, repo, systems } from "../site";
 
 const version = await latestVersion();
 const released = version !== null;
@@ -15,7 +15,7 @@ const groups = (["macOS", "Linux", "Windows"] as const).map((os) => ({
 
 <Base
   title="Download"
-  description={`Download Magnetite for macOS and Linux: signed releases, also through Homebrew. ${systems("Experimental")} is experimental, and mobile apps are coming soon.`}
+  description={`Download Magnetite for ${systems("Available")}, on macOS also through Homebrew. Mobile apps are coming soon.`}
 >
   <PageHeader eyebrow="Download" title='Get <span class="text-brass">Magnetite</span>' />
   <div class="mx-auto max-w-4xl px-5 pt-12">
@@ -24,7 +24,7 @@ const groups = (["macOS", "Linux", "Windows"] as const).map((os) => ({
       released ? (
         <p class="mt-5 text-lg leading-relaxed text-secondary">
           The latest release is version {version}. Magnetite is developed and used daily on macOS with Apple
-          silicon; the packages for Intel Macs and Linux are less tested, and {systems("Experimental")} is experimental. Expect breaking changes, including to the data
+          silicon; the packages for {STAGE.lessTested} are less tested. Expect breaking changes, including to the data
           on disk. All files, checksums and release notes are on <a href={repo.releases} class="link">GitHub Releases</a>.
         </p>
       ) : (
