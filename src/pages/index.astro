@@ -7,7 +7,7 @@ import SyncDiagram from "../components/SyncDiagram.astro";
 import Terminal from "../components/Terminal.astro";
 import type { SceneId } from "../demo/api";
 import { latestVersion } from "../github";
-import { ARC_SHUTDOWN, BREW_INSTALL, MOBILE, PLATFORMS, STAGE, docs, downloadUrl, repo, systems } from "../site";
+import { BREW_INSTALL, MOBILE, PLATFORMS, STAGE, docs, downloadUrl, repo, systems } from "../site";
 
 /** The Windows packages for the platform FAQ: "Windows 10 or newer (x86_64)". */
 const windows = PLATFORMS.filter((p) => p.os === "Windows")
@@ -264,15 +264,10 @@ const privacyPoints = [
 
 const facts: { title: string; text: string }[] = [
   { title: "Rust and Chromium", text: "The app is written in Rust and embeds Chromium through the Chromium Embedded Framework." },
-  { title: "Clean room", text: "No Arc code, assets or branding. Behaviour is specified in our own words." },
   { title: "No CLA", text: "Contributions come in under the EUPL. You keep your copyright." },
 ];
 
 const faq: { q: string; a: string }[] = [
-  {
-    q: "Is this Arc?",
-    a: `No. Magnetite is an independent open-source project and is not affiliated with, endorsed by or sponsored by The Browser Company. It works in a similar way (sidebar, spaces, command bar, archive) and imports your Arc sidebar, so you can move over before Arc shuts down on ${ARC_SHUTDOWN}. It contains no Arc code, assets or branding.`,
-  },
   {
     q: "Which platforms?",
     a: `macOS 13 or later, Linux (x86_64 and ARM64) and ${windows}. Magnetite is developed and used daily on Macs with Apple silicon; the packages for ${STAGE.lessTested} are less tested. ${PLATFORMS.flatMap((p) => p.note ?? []).join(" ")} Apps are coming soon for ${MOBILE.map((m) => m.devices).join(", and for ")}.`,
@@ -494,8 +489,7 @@ const version = await latestVersion();
             }
           </ul>
           <p class="mt-5 text-sm leading-relaxed text-muted">
-            Everything is read on your computer and nothing is uploaded. Magnetite is an independent project, not
-            affiliated with The Browser Company.
+            Everything is read on your computer and nothing is uploaded.
           </p>
         </div>
       </div>
@@ -659,7 +653,7 @@ const version = await latestVersion();
       </div>
       <div class="min-w-0" data-reveal><Terminal /></div>
     </div>
-    <ul class="mt-12 grid gap-5 md:grid-cols-3">
+    <ul class="mt-12 grid gap-5 md:grid-cols-2">
       {
         facts.map((f, i) => (
           <li class:list={["card spot p-6", `d-${i}`]} data-reveal>

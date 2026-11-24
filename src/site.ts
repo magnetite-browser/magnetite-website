@@ -56,8 +56,6 @@ export const STATS = {
   websiteId: "01c72990-0a5f-4c32-9cdb-b3f359a90be0",
 } as const;
 
-export const ARC_SHUTDOWN = "22 December 2026";
-
 /** Node.js major version a source build needs (README.md, "Building from source"). */
 export const NODE_VERSION = 22;
 
