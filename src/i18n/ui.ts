@@ -30,8 +30,6 @@ const en = {
   "footer.imprint": "Imprint",
   "footer.tagline": "An open-source desktop browser with sidebar tabs, spaces and a command bar.",
   "footer.copyright": "© 2026 the Magnetite contributors. Licensed under the EUPL-1.2.",
-  "footer.independent":
-    "Magnetite is an independent project. It is not affiliated with, endorsed by or sponsored by The Browser Company.",
 } as const;
 
 export const ui = { en } satisfies Record<Lang, Record<keyof typeof en, string>>;
