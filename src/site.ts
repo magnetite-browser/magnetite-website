@@ -123,7 +123,7 @@ export type Platform = {
   /** Release asset name for a version, as scripts/release produces it. */
   asset: (version: string) => string;
   /** How far along the package is; the home page's first screen groups the systems by it. */
-  status: "Available" | "Experimental" | "Coming soon";
+  status: "Available" | "Coming soon";
   /** Releases carry a package for it; lights the status dot on the home page. */
   ready: boolean;
   requirements: string;
@@ -173,16 +173,16 @@ export const PLATFORMS: readonly Platform[] = [
     os: "Windows",
     arch: "x86_64",
     asset: (v) => `Magnetite-${v}-windows-x86_64-setup.exe`,
-    status: "Experimental",
+    status: "Available",
     ready: true,
     requirements: "Windows 10 or newer",
-    note: "Not signed yet, so Windows warns before the installer starts.",
+    note: "The installer is not signed yet, so Windows warns before it starts.",
   },
 ];
 
-/** The systems whose packages have a status, as one phrase: "macOS and Linux". */
+/** The systems whose packages have a status, as one phrase: "macOS, Linux and Windows". */
 export const systems = (status: Platform["status"]): string =>
-  [...new Set(PLATFORMS.filter((p) => p.status === status).map((p) => p.os))].join(" and ");
+  new Intl.ListFormat("en-GB").format(new Set(PLATFORMS.filter((p) => p.status === status).map((p) => p.os)));
 
 /** The apps for phones and tablets: announced, nothing to download yet. */
 export const MOBILE = [
