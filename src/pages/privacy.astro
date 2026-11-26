@@ -11,7 +11,7 @@ const privacyMail = `mailto:${LEGAL.privacyEmail}`;
   description="What this website and the Magnetite browser do with your data: no cookies, visitor statistics on our own server, no telemetry in the browser."
 >
   <PageHeader eyebrow="Legal" title="Privacy policy">
-    <p class="mt-5 font-mono text-xs tracking-wide text-muted">Last updated: 10 November 2026</p>
+    <p class="mt-5 font-mono text-xs tracking-wide text-muted">Last updated: 26 November 2026</p>
   </PageHeader>
   <article class="mx-auto max-w-3xl px-5 pt-12">
 
@@ -125,7 +125,24 @@ const privacyMail = `mailto:${LEGAL.privacyEmail}`;
       <p>
         At start and once a day, Magnetite asks GitHub Releases (GitHub, Inc., USA) whether a new signed version exists. It
         is a plain request for the latest release, straight from your computer to GitHub: GitHub sees your IP address and
-        the browser’s user agent, and nothing else is sent. You can turn the check off in Settings → About.
+        the browser’s user agent, and nothing else is sent. You can turn the check off in Settings → About. On iPhone and
+        iPad, the App Store updates the app.
+      </p>
+
+      <h3 id="blocking">Content blocking</h3>
+      <p>
+        While content blocking is on, Magnetite downloads the filter lists you chose straight from their publishers, and
+        each again after four days: EasyList, EasyPrivacy and EasyList Germany from <code>easylist.to</code>, Peter Lowe’s
+        list from <code>pgl.yoyo.org</code>, and uBlock Origin’s lists from <code>ublockorigin.github.io</code> (GitHub,
+        Inc., USA). The publisher sees your IP address and the user agent of the download, and nothing else is sent. Pages
+        are checked against the lists on your device.
+      </p>
+
+      <h3 id="search">Searching</h3>
+      <p>
+        What you type in the address bar and do not open as an address goes, as a search, to the search engine you picked
+        in Settings, under that engine’s privacy policy. It is sent when you start the search; Magnetite asks the engine for
+        no suggestions while you type.
       </p>
 
       <h3>Sync</h3>
@@ -161,6 +178,28 @@ const privacyMail = `mailto:${LEGAL.privacyEmail}`;
           >public instance</a
         >.
       </p>
+
+      <h3 id="mobile">On iPhone and iPad</h3>
+      <p>Magnetite for iPhone and iPad works as described above, with these differences:</p>
+      <ul>
+        <li>
+          Tabs, history, settings, site icons and filter lists live in the app’s own storage on the device. Downloads are
+          saved where the Files app shows them.
+        </li>
+        <li>History is kept for as long as you set in Settings (three months unless you change it) and is never synced.</li>
+        <li>
+          Pages in the private space leave no history, and their cookies and logins are gone when the app quits. Its tabs
+          are not kept and not shown on your other devices.
+        </li>
+        <li>
+          The camera is used when you scan the QR code of a sync code; the code is read on the device. Camera, microphone
+          and location go to a website only when you allow it. Magnetite keeps and sends nothing of them.
+        </li>
+        <li>
+          In a sync chain, the app adds an entry of its own, encrypted like the rest: the tabs open on it, unless you turn
+          off “Show Tabs on Other Devices”, and the changes you make to the sidebar, which your computer makes when it syncs.
+        </li>
+      </ul>
 
       <h2 id="rights">4. Your rights</h2>
       <p>
