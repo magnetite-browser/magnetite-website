@@ -1,0 +1,12 @@
+---
+// Apple's "Download on the App Store" badge, linking to a listing. Apple's
+// marketing guidelines allow only their artwork, unchanged (public/badges/), at
+// least 40 px tall, with a quarter of its height as clear space around it, and
+// ask for the trademark credit line the footer carries.
+type Props = { href: string };
+const { href } = Astro.props;
+---
+
+<a {href} class="inline-flex rounded-[10px]">
+  <img src="/badges/app-store.svg" alt="Download on the App Store" width="144" height="48" />
+</a>

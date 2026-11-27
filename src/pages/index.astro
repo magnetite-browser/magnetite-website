@@ -5,9 +5,10 @@ import Logo from "../components/Logo.astro";
 import FieldCanvas from "../components/FieldCanvas.astro";
 import SyncDiagram from "../components/SyncDiagram.astro";
 import Terminal from "../components/Terminal.astro";
+import AppStoreBadge from "../components/AppStoreBadge.astro";
 import type { SceneId } from "../demo/api";
 import { latestVersion } from "../github";
-import { BREW_INSTALL, MOBILE, PLATFORMS, STAGE, docs, downloadUrl, repo, systems } from "../site";
+import { BREW_INSTALL, MOBILE, PLATFORMS, STAGE, docs, downloadUrl, mobileStatus, repo, systems } from "../site";
 
 /** The Windows packages for the platform FAQ: "Windows 10 or newer (x86_64)". */
 const windows = PLATFORMS.filter((p) => p.os === "Windows")
@@ -270,7 +271,7 @@ const facts: { title: string; text: string }[] = [
 const faq: { q: string; a: string }[] = [
   {
     q: "Which platforms?",
-    a: `macOS 13 or later, Linux (x86_64 and ARM64) and ${windows}. Magnetite is developed and used daily on Macs with Apple silicon; the packages for ${STAGE.lessTested} are less tested. ${PLATFORMS.flatMap((p) => p.note ?? []).join(" ")} Apps are coming soon for ${MOBILE.map((m) => m.devices).join(", and for ")}.`,
+    a: `macOS 13 or later, Linux (x86_64 and ARM64) and ${windows}. Magnetite is developed and used daily on Macs with Apple silicon; the packages for ${STAGE.lessTested} are less tested. ${PLATFORMS.flatMap((p) => p.note ?? []).join(" ")} ${mobileStatus}`,
   },
   {
     q: "Is it free?",
@@ -717,23 +718,24 @@ const version = await latestVersion();
     </div>
   </section>
 
-  <!-- Mobile: a teaser, nothing to download yet -->
+  <!-- Mobile: the iPhone and iPad app, Android still to come -->
   <section id="mobile" class="mx-auto max-w-7xl px-5 pt-16 sm:pt-24" aria-labelledby="mobile-title">
     <div class="glass grid items-center gap-10 overflow-hidden rounded-[28px] p-8 sm:p-12 lg:grid-cols-[1.1fr_1fr] lg:gap-14" data-reveal>
       <div>
         <p class="flex items-center gap-3">
           <span class="eyebrow">Mobile</span>
-          <span class="beta">Coming soon</span>
+          <span class="beta">Out now</span>
         </p>
         <h2 id="mobile-title" class="section-title mt-5 font-display">Your sidebar, in your pocket.</h2>
         <p class="mt-5 max-w-lg text-lg leading-relaxed text-secondary">
-          Magnetite is coming to phones and tablets. Your spaces, favorites and pinned tabs arrive from your computer
-          through the encrypted sync, and a page you started on the phone can be picked up on the desktop.
+          Magnetite for iPhone and iPad is on the App Store, Android follows. Your spaces, favorites and pinned tabs
+          arrive from your computer through the encrypted sync, and a page you started on the phone can be picked up on
+          the desktop.
         </p>
-        <ul class="mt-7 flex flex-wrap gap-2" aria-label="Devices the apps are being built for">
-          {MOBILE.map((m) => <li class="source">{m.devices}</li>)}
-        </ul>
-        <p class="mt-6 text-sm text-muted">No date yet. Like the desktop browser: no account, no telemetry.</p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          {MOBILE.flatMap((m) => (m.appStore ? <AppStoreBadge href={m.appStore} /> : []))}
+        </div>
+        <p class="mt-6 text-sm text-muted">Android: no date yet. Like the desktop browser: no account, no telemetry.</p>
       </div>
 
       <!-- A drawing of the apps, not a screenshot -->

@@ -30,6 +30,8 @@ const en = {
   "footer.imprint": "Imprint",
   "footer.tagline": "An open-source desktop browser with sidebar tabs, spaces and a command bar.",
   "footer.copyright": "© 2026 the Magnetite contributors. Licensed under the EUPL-1.2.",
+  "footer.trademarks":
+    "Apple and the Apple logo are trademarks of Apple Inc., registered in the U.S. and other countries. App Store is a service mark of Apple Inc.",
 } as const;
 
 export const ui = { en } satisfies Record<Lang, Record<keyof typeof en, string>>;

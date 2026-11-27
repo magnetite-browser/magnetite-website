@@ -184,11 +184,23 @@ export const PLATFORMS: readonly Platform[] = [
 export const systems = (status: Platform["status"]): string =>
   new Intl.ListFormat("en-GB").format(new Set(PLATFORMS.filter((p) => p.status === status).map((p) => p.os)));
 
-/** The apps for phones and tablets: announced, nothing to download yet. */
-export const MOBILE = [
-  { os: "iOS and iPadOS", devices: "iPhone and iPad" },
+export type MobileApp = {
+  os: string;
+  devices: string;
+  /** App Store listing once the app is out; without one it is still coming soon. */
+  appStore?: string;
+};
+
+/** The apps for phones and tablets. */
+export const MOBILE: readonly MobileApp[] = [
+  { os: "iOS and iPadOS", devices: "iPhone and iPad", appStore: "https://apps.apple.com/app/id6837033710" },
   { os: "Android", devices: "Android phones and tablets" },
-] as const;
+];
+
+/** Where each mobile app stands, as sentences for page text. */
+export const mobileStatus = MOBILE.map(
+  (m) => `The app for ${m.devices} is ${m.appStore ? "on the App Store" : "coming soon"}.`,
+).join(" ");
 
 /** Direct link to a platform's file in a release (`latestVersion()` in github.ts), or null while there is none for it. */
 export const downloadUrl = (p: Platform, version: string | null): string | null =>
